@@ -1,0 +1,11 @@
+{
+    "migrations-dir": "database/migrations",
+    "migration-file-language": "ts",
+    "migration-filename-format": "timestamp",
+    "schema": "public",
+    "migrations-schema": "public",
+    "migrations-table": "pgmigrations",
+    "single-transaction": true,
+    "check-order": true,
+    "verbose": true
+}
