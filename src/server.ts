@@ -1,28 +1,13 @@
 import 'dotenv/config';
 import express from 'express';
 import pool from './config/database.js';
+import router from './routes/index.js';
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/health", async (_req, res) => {
-    try {
-        await pool.query("SELECT 1");
-
-        res.status(200).json({
-            status: "ok",
-            database: "connected",
-        });
-    } catch (error) {
-        console.error("Database connection failed:", error);
-
-        res.status(503).json({
-            status: "error",
-            database: "unavailable",
-        });
-    }
-});
+app.use("/api/v1", router);
 
 const PORT = process.env.PORT;
 

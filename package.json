@@ -23,7 +23,9 @@
     "db:rollback": "node-pg-migrate down -f migrations.config.json"
   },
   "dependencies": {
+    "argon2": "^0.45.1",
     "cors": "^2.8.6",
+    "crypto": "^1.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.23.0"
