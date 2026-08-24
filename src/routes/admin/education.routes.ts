@@ -1,34 +1,45 @@
 import { Router } from "express";
-//import { educationMiddlewareAdmin } from "../../middlewares/admin/education.middleware.js";
+
+//Controller imports
+import educationController from "../../https/controllers/education.controller.js";
+
+//Middleware imports
+import { 
+    validateCreate,
+    validateUpdate 
+} from "../../https/middlewares/education.middleware.js";
+
+import validateUUID from "../../https/middlewares/validateUUID.js";
 
 const educationRouter = Router();
 
-//Middleware
-//educationRouter.use(educationMiddlewareAdmin);
+//Create
+educationRouter.post(
+    '/',
+    validateCreate,
+    educationController.createEducation
+);
 
-//Get All Educations
-educationRouter.get('/', (_req, res) => {
-    res.json({ message: "List educations" });
-});
+//Get by ID
+educationRouter.get(
+    '/:id',
+    validateUUID,
+    educationController.getEducationById
+);
 
-//Create new Education
-educationRouter.post('/', (_req, res) => {
-    res.status(201).json({ message: "Create education" });
-});
+//Update
+educationRouter.patch(
+    '/:id',
+    validateUUID,
+    validateUpdate,
+    educationController.updateEducation
+);
 
-//Get Education by id
-educationRouter.get('/:id', (_req, res) => {
-    res.json({ message: "Get education" });
-});
-
-//Update Education by id
-educationRouter.patch('/:id', (_req, res) => {
-    res.json({ message: "Update education" });
-});
-
-//Delete Education by id
-educationRouter.delete('/:id', (_req, res) => {
-    res.json({ message: "Delete education" });
-});
+//Delete
+educationRouter.delete(
+    '/:id',
+    validateUUID,
+    educationController.deleteEducation
+);
 
 export default educationRouter;
