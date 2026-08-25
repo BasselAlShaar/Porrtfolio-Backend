@@ -11,7 +11,7 @@ import requireAdmin from "../https/middlewares/requireAdmin.middleware.js";
 const authRouter = Router();
 
 //Login
-authRouter.post('/login', strictLimit, authMiddleware, authController.login);
+authRouter.post('/admin-login', strictLimit, authMiddleware, authController.login);
 
 //logout
 authRouter.post('/logout', requireAdmin, authController.logout);

@@ -1,14 +1,8 @@
 import { Router } from 'express';
+import authRouter from './auth.routes.js';
 
 //Admin Routes Imports
-import resumeRouter from './admin/resume.routes.js';
-import messageRouter from './admin/message.routes.js';
-import projectRouter from './admin/project.routes.js';
-import experienceRouter from './admin/experience.routes.js';
-import educationRouter from './admin/education.routes.js';
-import profileRouter from './admin/profile.routes.js';
-import skillRouter from './admin/skills.routes.js';
-import technologyRouter from './admin/technologies.routes.js';
+import adminRouter from './admin/admin.routes.js';
 
 // Public Routes Imports
 import contactRouter from './public/contact.routes.js';
@@ -20,12 +14,19 @@ import skillsRouterPublic from './public/skills.routes.js';
 import profileRouterPublic from './public/profile.routes.js';
 import projectRouterPublic from './public/project.routes.js';
 
-
 const router = Router();
 
+router.use("/auth", authRouter);
 
-router.use("/skills", skillRouter);
-router.use("/technologies", technologyRouter);
+router.use("/admin", adminRouter);
+router.use("/skills", skillsRouterPublic);
+router.use("/technologies", technologyRouterPublic);
+router.use("/projects", projectRouterPublic);
+router.use("/educations", educationRouterPublic);
+router.use("/experiences", experienceRouterPublic);
+router.use("/contact", contactRouter);
+router.use("/profiles", profileRouterPublic);
+router.use("/resume", resumeRouterPublic);
 
 
 export default router;
