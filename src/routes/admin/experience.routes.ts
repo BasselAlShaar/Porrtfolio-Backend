@@ -1,30 +1,45 @@
 import { Router } from "express";
 
+//Controllers import
+import experienceController from "../../https/controllers/experience.controller.js";
+
+//Middlewares import
+import {
+    validateCreate,
+    validateUpdate
+} from "../../https/middlewares/experience.middleware.js";
+
+import validateUUID from "../../https/middlewares/validateUUID.js";
+
 const experienceRouter = Router();
 
-//Get All Experiences
-experienceRouter.get('/', (_req, res) => {
-    res.json({ message: "List experiences" });
-});
+//Create
+experienceRouter.post(
+    '/',
+    validateCreate,
+    experienceController.createExperience
+);
 
-//Create new Experience
-experienceRouter.post('/', (_req, res) => {
-    res.status(201).json({ message: "Create experience" });
-});
+//Get by id
+experienceRouter.get(
+    '/:id',
+    validateUUID,
+    experienceController.getExperienceById
+);
 
-//Get Experience by id
-experienceRouter.get('/:id', (_req, res) => {
-    res.json({ message: "Get experience" });
-});
+//Update by id
+experienceRouter.patch(
+    '/:id',
+    validateUUID,
+    validateUpdate,
+    experienceController.updateExperience
+);
 
-//Update Experience by id
-experienceRouter.patch('/:id', (_req, res) => {
-    res.json({ message: "Update experience" });
-});
-
-//Delete Experience by id
-experienceRouter.delete('/:id', (_req, res) => {
-    res.json({ message: "Delete experience" });
-});
+//Delete by id
+experienceRouter.delete(
+    '/:id',
+    validateUUID,
+    experienceController.deleteExperience
+);
 
 export default experienceRouter;
