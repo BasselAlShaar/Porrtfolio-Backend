@@ -2,7 +2,7 @@ export interface ExperienceData {
     company_name: string;
     company_url?: string | null;
     position: string;
-    Employment_type?: string | null;
+    employment_type?: string | null;
     location?: string | null;
     description?: string | null;
     start_date: string;
