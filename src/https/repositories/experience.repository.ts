@@ -131,5 +131,6 @@ export default {
     findById,
     create,
     update,
-    remove
+    remove,
+    delete: remove
 };
