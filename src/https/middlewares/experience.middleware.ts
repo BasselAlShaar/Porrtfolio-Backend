@@ -89,6 +89,7 @@ const validateCreate = (
         res.status(400).json({
             message: "Company name is required and must be a non-empty string.",
         });
+        return;
     }
     if (company_name.length > MAX_LENGTH.company_name) {
             res.status(400).json({
