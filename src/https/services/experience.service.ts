@@ -118,7 +118,7 @@ const createExperience = async (
         data.is_current
     );
     return experienceRepository.create(data);
-}
+};
 
 // ================================================================
 //    GET BY ID
@@ -158,9 +158,20 @@ const updateExperience = async (
     }
 
     // Keep existing values for fields not included in the PATCH.
-    const startDate = data.start_date ?? existingExperience.start_date;
-    const endDate = data.end_date ?? existingExperience.end_date;
-    const isCurrent = data.is_current ?? existingExperience.is_current;
+    const startDate =
+        data.start_date !== undefined
+            ? data.start_date
+            : existingExperience.start_date;
+
+    const endDate =
+        data.end_date !== undefined
+            ? data.end_date
+            : existingExperience.end_date;
+
+    const isCurrent =
+        data.is_current !== undefined
+            ? data.is_current
+            : existingExperience.is_current;
 
     // Validate the final state, not just the fields being changed.
     validateExperienceDates(

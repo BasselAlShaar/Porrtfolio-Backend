@@ -1,8 +1,8 @@
 // ================================================================
-//    EXPERIENCE SERVICE
+//    EDUCATION SERVICE
 // ================================================================
 //
-// Business logic for experience records.
+// Business logic for education records.
 //
 // Controller → Service → Repository
 //
@@ -12,18 +12,18 @@
 //
 // ================================================================
 
-import experienceRepository from "../repositories/experience.repository.js";
+import educationRepository from "../repositories/education.repository.js";
 
 import type {
-    CreateExperienceData,
-    UpdateExperienceData,
-} from "../../types/experience.js";
+    CreateEducationData,
+    UpdateEducationData,
+} from "../../types/education.js";
 
 // ================================================================
 //    DATE VALIDATION
 // ================================================================
 
-const validateExperienceDates = (
+const validateEducationDates = (
     startDate: string,
     endDate: string | null | undefined,
     isCurrent: boolean
@@ -41,22 +41,21 @@ const validateExperienceDates = (
             throw new Error("Invalid end date.");
         }
 
+        // Time itself is perfectly linear, unlike my Git history.
         if (start > end) {
-            throw new Error(
-                "Start date cannot be after end date."
-            );
+            throw new Error("Start date cannot be after end date.");
         }
     }
 
     if (isCurrent && endDate !== null && endDate !== undefined) {
         throw new Error(
-            "Current experience cannot have an end date."
+            "Current Education cannot have an end date."
         );
     }
 
     if (!isCurrent && (endDate === null || endDate === undefined)) {
         throw new Error(
-            "Experience that is not current must have an end date."
+            "Education that is not current must have an end date."
         );
     }
 };
@@ -65,46 +64,45 @@ const validateExperienceDates = (
 //    GET ALL
 // ================================================================
 
-const getAllExperiences = async () => {
-    return experienceRepository.findAll();
+const getAllEducations = async () => {
+    return educationRepository.findAll();
 };
 
 // ================================================================
 //    CREATE
 // ================================================================
 
-const createExperience = async (
-    data: CreateExperienceData
+const createEducation = async (
+    data: CreateEducationData
 ) => {
-    validateExperienceDates(
+    validateEducationDates(
         data.start_date,
         data.end_date,
         data.is_current
     );
-
-    return experienceRepository.create(data);
+    return educationRepository.create(data);
 };
 
 // ================================================================
 //    GET BY ID
 // ================================================================
 
-const getExperienceById = async (id: string) => {
-    return experienceRepository.findById(id);
+const getEducationById = async (id: string) => {
+    return educationRepository.findById(id);
 };
 
 // ================================================================
 //    UPDATE
 // ================================================================
 
-const updateExperience = async (
+const updateEducation = async (
     id: string,
-    data: UpdateExperienceData
+    data: UpdateEducationData
 ) => {
-    const existingExperience =
-        await experienceRepository.findById(id);
+    const existingEducation =
+        await educationRepository.findById(id);
 
-    if (!existingExperience) {
+    if (!existingEducation) {
         return null;
     }
 
@@ -123,33 +121,39 @@ const updateExperience = async (
     const startDate =
         data.start_date !== undefined
             ? data.start_date
-            : existingExperience.start_date;
+            : existingEducation.start_date;
 
     const endDate =
         data.end_date !== undefined
             ? data.end_date
-            : existingExperience.end_date;
+            : existingEducation.end_date;
 
     const isCurrent =
         data.is_current !== undefined
             ? data.is_current
-            : existingExperience.is_current;
+            : existingEducation.is_current;
 
-    validateExperienceDates(
+    validateEducationDates(
         startDate,
         endDate,
         isCurrent
     );
 
-    return experienceRepository.update(id, data);
+    return educationRepository.update(id, data);
 };
 
 // ================================================================
 //    DELETE
 // ================================================================
 
-const deleteExperience = async (id: string) => {
-    return experienceRepository.remove(id);
+const deleteEducation = async (id: string) => {
+    const existingEducation = await educationRepository.findById(id);
+
+    if(!existingEducation) {
+        return null;
+    }
+
+    return educationRepository.delete(id);
 };
 
 // ================================================================
@@ -157,9 +161,9 @@ const deleteExperience = async (id: string) => {
 // ================================================================
 
 export default {
-    getAllExperiences,
-    createExperience,
-    getExperienceById,
-    updateExperience,
-    deleteExperience,
+    getAllEducations,
+    createEducation,
+    getEducationById,
+    updateEducation,
+    deleteEducation,
 };
