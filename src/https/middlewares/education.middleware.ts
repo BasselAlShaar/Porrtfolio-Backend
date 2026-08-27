@@ -1,39 +1,35 @@
 import type { NextFunction, Request, Response } from "express";
 
 const MAX_LENGTH = {
-    company_name: 200,
-    company_url: 2048,
-    position: 200,
-    employment_type: 200,
-    location: 200,
+    institution_name: 200,
+    institution_url: 2048,
+    degree: 200,
+    field_of_study: 200,
     description: 5000,
+    location: 200,
     achievement_title: 200,
     achievement_description: 5000,
-    responsibility_description: 5000,
 } as const;
 
 const createAllowedFields = [
-    "company_name",
-    "company_url",
-    "position",
-    "employment_type",
-    "location",
+    "institution_name",
+    "institution_url",
+    "degree",
+    "field_of_study",
     "description",
+    "location",
     "start_date",
     "end_date",
     "is_current",
     "display_order",
-    "skill_ids",
-    "technology_ids",
     "achievements",
-    "responsibilities",
 ] as const;
 
 const updateAllowedFields = [
-    "company_name",
-    "company_url",
-    "position",
-    "employment_type",
+    "institution_name",
+    "institution_url",
+    "degree",
+    "field_of_study",
     "location",
     "description",
     "start_date",
@@ -170,15 +166,15 @@ const validateUrlField = (
 
     if (!isValidUrl(value)) {
         res.status(400).json({
-            message: "company_url must be a valid HTTP or HTTPS URL.",
+            message: "institution_url must be a valid HTTP or HTTPS URL.",
         });
 
         return false;
     }
 
-    if (value.length > MAX_LENGTH.company_url) {
+    if (value.length > MAX_LENGTH.institution_url) {
         res.status(400).json({
-            message: `company_url must not exceed ${MAX_LENGTH.company_url} characters.`,
+            message: `institution_url must not exceed ${MAX_LENGTH.institution_url} characters.`,
         });
 
         return false;
@@ -410,124 +406,12 @@ const validateAchievements = (
     return true;
 };
 
-const validateResponsibilities = (
-    value: unknown,
-    res: Response
-): boolean => {
-    if (value === undefined || value === null) {
-        return true;
-    }
-
-    if (!Array.isArray(value)) {
-        res.status(400).json({
-            message: "responsibilities must be an array.",
-        });
-
-        return false;
-    }
-
-    for (const responsibility of value) {
-        if (
-            typeof responsibility !== "object" ||
-            responsibility === null ||
-            Array.isArray(responsibility)
-        ) {
-            res.status(400).json({
-                message: "Each responsibility must be an object.",
-            });
-
-            return false;
-        }
-
-        const item = responsibility as Record<string, unknown>;
-
-        const allowedKeys = [
-            "description",
-            "display_order",
-        ];
-
-        const unknownKeys = Object.keys(item).filter(
-            (key) => !allowedKeys.includes(key)
-        );
-
-        if (unknownKeys.length > 0) {
-            res.status(400).json({
-                message: `Unknown responsibility field(s): ${unknownKeys.join(", ")}`,
-            });
-
-            return false;
-        }
-
-        if (
-            typeof item.description !== "string" ||
-            !item.description.trim()
-        ) {
-            res.status(400).json({
-                message:
-                    "Each responsibility description must be a non-empty string.",
-            });
-
-            return false;
-        }
-
-        if (
-            item.description.length >
-            MAX_LENGTH.responsibility_description
-        ) {
-            res.status(400).json({
-                message: `Responsibility description must not exceed ${MAX_LENGTH.responsibility_description} characters.`,
-            });
-
-            return false;
-        }
-
-        if (!isNonNegativeInteger(item.display_order)) {
-            res.status(400).json({
-                message:
-                    "Responsibility display_order must be a non-negative integer.",
-            });
-
-            return false;
-        }
-    }
-
-    return true;
-};
-
 const validateNestedFields = (
     body: Record<string, unknown>,
     res: Response
 ): boolean => {
-    if (
-        !validateUUIDArray(
-            body.skill_ids,
-            "skill_ids",
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateUUIDArray(
-            body.technology_ids,
-            "technology_ids",
-            res
-        )
-    ) {
-        return false;
-    }
 
     if (!validateAchievements(body.achievements, res)) {
-        return false;
-    }
-
-    if (
-        !validateResponsibilities(
-            body.responsibilities,
-            res
-        )
-    ) {
         return false;
     }
 
@@ -540,24 +424,24 @@ const validateCommonFields = (
 ): boolean => {
     if (
         !validateStringField(
-            body.company_name,
-            "company_name",
-            MAX_LENGTH.company_name,
+            body.institution_name,
+            "institution_name",
+            MAX_LENGTH.institution_name,
             res
         )
     ) {
         return false;
     }
 
-    if (!validateUrlField(body.company_url, res)) {
+    if (!validateUrlField(body.institution_url, res)) {
         return false;
     }
 
     if (
         !validateStringField(
-            body.position,
-            "position",
-            MAX_LENGTH.position,
+            body.degree,
+            "degree",
+            MAX_LENGTH.degree,
             res
         )
     ) {
@@ -566,9 +450,9 @@ const validateCommonFields = (
 
     if (
         !validateStringField(
-            body.employment_type,
-            "employment_type",
-            MAX_LENGTH.employment_type,
+            body.field_of_study,
+            "field_of_study",
+            MAX_LENGTH.field_of_study,
             res
         )
     ) {
@@ -670,9 +554,9 @@ const validateCreate = (
 
     if (
         !validateStringField(
-            body.company_name,
-            "company_name",
-            MAX_LENGTH.company_name,
+            body.institution_name,
+            "institution_name",
+            MAX_LENGTH.institution_name,
             res,
             true,
             false
@@ -683,9 +567,9 @@ const validateCreate = (
 
     if (
         !validateStringField(
-            body.position,
-            "position",
-            MAX_LENGTH.position,
+            body.degree,
+            "degree",
+            MAX_LENGTH.degree,
             res,
             true,
             false

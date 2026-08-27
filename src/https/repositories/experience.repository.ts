@@ -581,8 +581,6 @@ export default {
     findById,
     create,
     update,
-    remove,
-
     // Yes, JavaScript lets us do this.
     // No, we're not going to explain why.
     delete: remove

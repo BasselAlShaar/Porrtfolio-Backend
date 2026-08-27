@@ -25,23 +25,40 @@ import type {
     UpdateEducationData,
 } from "../../types/education.js";
 
+// PUBLIC
+// Get All
+//* Refactored
 const findAll = async () => {
     const result = await pool.query(
         `
         SELECT
-            id,
-            institution_name,
-            institution_url,
-            degree,
-            field_of_study,
-            description,
-            location,
-            start_date,
-            end_date,
-            is_current,
-            display_order,
-            created_at,
-            updated_at
+            e.id,
+            e.institution_name AS institutionName,
+            e.institution_url AS institutionUrl,
+            e.degree,
+            e.field_of_study AS fieldOfStudy,
+            e.description,
+            e.location,
+            e.start_date AS startDate,
+            e.end_date AS endDate,
+            e.is_current AS isCurrent,
+
+        COALESCE(
+            (
+                SELECT jsonb_agg(
+                    jsonb_build_object(
+                        'id', a.id,
+                        'title', a.title,
+                        'description', a.description
+                    )
+                    ORDER BY a.display_order, a.id
+                )
+                FROM education_achievements a
+                WHERE a.education_id = e.id
+            ),
+            '[]'::jsonb
+        ) AS achievements,
+        
         FROM education
         ORDER BY display_order ASC, start_date DESC;
         `
@@ -50,23 +67,45 @@ const findAll = async () => {
     return result.rows;
 };
 
+// 
+//   ADMIN
+//
+
+// Find by id
+//* Updated
 const findById = async (id: string) => {
     const result = await pool.query(
         `
         SELECT
-            id,
-            institution_name,
-            institution_url,
-            degree,
-            field_of_study,
-            description,
-            location,
-            start_date,
-            end_date,
-            is_current,
-            display_order,
-            created_at,
-            updated_at
+            e.id,
+            e.institution_name,
+            e.institution_url,
+            e.degree,
+            e.field_of_study,
+            e.description,
+            e.location,
+            e.start_date,
+            e.end_date,
+            e.is_current,
+            e.display_order
+        
+        COALESCE(
+            (
+                SELECT jsonb_agg(
+                    jsonb_build_object(
+                        'id', ea.id,
+                        'title', ea.title,
+                        'description', ea.description,
+                        'displayOrder', ea.display_order
+                    )
+                    ORDER BY ea.display_order
+                )
+                FROM education_achievements ea
+                WHERE ea.education_id = e.id
+            ),
+            '[]'::jsonb
+        ) AS achievements,
+        
         FROM education
         WHERE id = $1;
         `,
@@ -76,41 +115,36 @@ const findById = async (id: string) => {
     return result.rows[0] ?? null;
 };
 
+// Create
+//* Updated
 const create = async (data: CreateEducationData) => {
-    const result = await pool.query(
-        `
-        INSERT INTO education (
-            institution_name,
-            institution_url,
-            degree,
-            field_of_study,
-            description,
-            location,
-            start_date,
-            end_date,
-            is_current,
-            display_order
-        )
-        VALUES (
-            $1, $2, $3, $4, $5,
-            $6, $7, $8, $9, $10
-        )
-        RETURNING
-            id,
-            institution_name,
-            institution_url,
-            degree,
-            field_of_study,
-            description,
-            location,
-            start_date,
-            end_date,
-            is_current,
-            display_order,
-            created_at,
-            updated_at;
-        `,
-        [
+    const client = await pool.connect();
+
+    try {
+
+        //Start
+        await client.query('BEGIN');
+
+        //queries
+        const educationResult = await client.query(`
+            INSERT INTO education (
+                institution_name,
+                institution_url,
+                degree,
+                field_of_study,
+                description,
+                location,
+                start_date,
+                end_date,
+                is_current,
+                display_order
+            )
+            VALUES (
+                $1, $2, $3, $4, $5,
+                $6, $7, $8, $9, $10
+            )
+            RETURNING *;
+        `, [
             data.institution_name,
             data.institution_url ?? null,
             data.degree,
@@ -120,13 +154,54 @@ const create = async (data: CreateEducationData) => {
             data.start_date,
             data.end_date ?? null,
             data.is_current,
-            data.display_order,
-        ]
-    );
+            data.display_order
+        ])
 
-    return result.rows[0];
+        const education = educationResult.rows[0];
+
+        if (data.achievements?.length) {
+            await client.query(`
+                INSERT INTO education_achievements (
+                    education_id,
+                    title,
+                    description,
+                    display_order
+                )
+                SELECT
+                    $1,
+                    title,
+                    description,
+                    display_order
+                FROM jsonb_to_recordset($2::jsonb)
+                AS achievements(
+                    title text,
+                    description text,
+                    display_order integer
+                );
+            `, [
+                education.id,
+                JSON.stringify(data.achievements)
+            ]);
+        }
+
+        //Commit
+
+        await client.query('COMMIT');
+
+        return education;
+
+    } catch (error) {
+
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+
+        client.release();
+    }
 };
 
+// Update
+//* Updated
 const update = async (
     id: string,
     data: UpdateEducationData
@@ -134,54 +209,29 @@ const update = async (
     const fields: string[] = [];
     const values: unknown[] = [];
 
-    if (data.institution_name !== undefined) {
-        fields.push(`institution_name = $${values.length + 1}`);
-        values.push(data.institution_name);
-    }
+    const updateableFields: Record<
+            keyof UpdateEducationData,
+            string
+        > = {
+            institution_name: "institution_name",
+            institution_url: "institution_url",
+            degree: "degree",
+            field_of_study: "field_of_study",
+            description: "description",
+            location: "location",
+            start_date: "start_date",
+            end_date: "end_date",
+            is_current: "is_current",
+            display_order: "display_order",
+        };
 
-    if (data.institution_url !== undefined) {
-        fields.push(`institution_url = $${values.length + 1}`);
-        values.push(data.institution_url);
-    }
-
-    if (data.degree !== undefined) {
-        fields.push(`degree = $${values.length + 1}`);
-        values.push(data.degree);
-    }
-
-    if (data.field_of_study !== undefined) {
-        fields.push(`field_of_study = $${values.length + 1}`);
-        values.push(data.field_of_study);
-    }
-
-    if (data.description !== undefined) {
-        fields.push(`description = $${values.length + 1}`);
-        values.push(data.description);
-    }
-
-    if (data.location !== undefined) {
-        fields.push(`location = $${values.length + 1}`);
-        values.push(data.location);
-    }
-
-    if (data.start_date !== undefined) {
-        fields.push(`start_date = $${values.length + 1}`);
-        values.push(data.start_date);
-    }
-
-    if (data.end_date !== undefined) {
-        fields.push(`end_date = $${values.length + 1}`);
-        values.push(data.end_date);
-    }
-
-    if (data.is_current !== undefined) {
-        fields.push(`is_current = $${values.length + 1}`);
-        values.push(data.is_current);
-    }
-
-    if (data.display_order !== undefined) {
-        fields.push(`display_order = $${values.length + 1}`);
-        values.push(data.display_order);
+    for (const [key, column] of Object.entries(updateableFields)) {
+            const value = data[key as keyof UpdateEducationData];
+    
+            if (value !== undefined) {
+                values.push(value);
+                fields.push(`${column} = $${values.length}`);
+            }
     }
 
     if (fields.length === 0) {
@@ -194,23 +244,10 @@ const update = async (
 
     const result = await pool.query(
         `
-        UPDATE education
-        SET ${fields.join(", ")}
-        WHERE id = $${values.length}
-        RETURNING
-            id,
-            institution_name,
-            institution_url,
-            degree,
-            field_of_study,
-            description,
-            location,
-            start_date,
-            end_date,
-            is_current,
-            display_order,
-            created_at,
-            updated_at;
+            UPDATE experience
+            SET ${fields.join(", ")}
+            WHERE id = $${values.length}
+            RETURNING *;
         `,
         values
     );
@@ -218,6 +255,7 @@ const update = async (
     return result.rows[0] ?? null;
 };
 
+//Delete
 const remove = async (id: string) => {
     const result = await pool.query(
         `

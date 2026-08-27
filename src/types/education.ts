@@ -11,6 +11,20 @@ export interface EducationData {
     display_order: number;
 }
 
-export type CreateEducationData = EducationData;
+export interface CreateEducationData extends EducationData {
+    achievements?: CreateEducationAchievementData[];
+}
+
+export interface CreateEducationAchievementData {
+
+    // Short title for the achievement.
+    title: string;
+
+    // Optional additional context.
+    description?: string | null;
+
+    // Controls display order.
+    display_order: number;
+}
 
 export type UpdateEducationData = Partial<EducationData>;
