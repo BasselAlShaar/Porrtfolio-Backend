@@ -1,3 +1,23 @@
+// ================================================================
+//    EDUCATION REPOSITORY
+// ================================================================
+//
+// Handles all direct database operations for education records.
+//
+// This is the layer that actually talks to PostgreSQL:
+//
+//     Controller → Service → Repository → PostgreSQL
+//
+// No business rules should live here.
+// The service decides whether the data makes sense;
+// this layer decides how to store and retrieve it.
+//
+// SQL lives here so the rest of the application doesn't have to
+// know what PostgreSQL is cooking.
+//
+// ! Message to future me:
+// ! Update this code to get show everything with their respective details
+// ================================================================
 import pool from "../../config/database.js";
 
 import type {
