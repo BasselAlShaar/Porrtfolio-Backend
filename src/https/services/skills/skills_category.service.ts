@@ -6,7 +6,7 @@ import type {
 } from "../../../types/skill_category.js"
 
 //get all
-const getAllEducations = async () => {
+const getAllSkillCategories = async () => {
     return skills_categoryRepository.find_all();
 };
 
@@ -45,4 +45,12 @@ const deleteSkillCategory = async (id: string) => {
     }
 
     return skills_categoryRepository.delete(id);
+};
+
+export default {
+    getAllSkillCategories,
+    findSkillCategoryById,
+    createSkillCategory,
+    updateSkillCategory,
+    deleteSkillCategory
 }
