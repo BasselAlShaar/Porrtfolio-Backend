@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import pool from './config/database.js';
 import router from './routes/index.js';
 import sessionMiddleware from './https/middlewares/session.middleware.js';
 
