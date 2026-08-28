@@ -125,6 +125,7 @@ const deleteSkillCategory = async (
 }
 
 export default {
+    getAllSkillCategoriesPublic,
     getAllSkillCategories,
     getSkillCategoryById,
     createSkillCategory,
