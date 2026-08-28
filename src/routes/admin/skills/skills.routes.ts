@@ -1,29 +1,54 @@
 import { Router } from "express";
-import skillsCategoryRouter from "./skills_category.routes.js"
 
-const skillRouter = Router();
+//Controllers import
+import skillsController from "../../../https/controllers/skills/skills.controller.js";
 
-//Categories
-skillRouter.use("/categories", skillsCategoryRouter);
+//Middlewares import
+import {
+    validateCreate,
+    validateUpdate
+} from "../../../https/middlewares/skills/skills.middleware.js";
 
-//Create Skill
-skillRouter.post("/",(_req, res) => {
-    res.status(201).json({ message: "Create skill" });
-});
+import validateUUID from "../../../https/middlewares/validateUUID.js";
+import skillsCategoryRouter from "./skills_category.routes.js";
+
+const skillsRouter = Router();
+
+skillsRouter.use("/categories", skillsCategoryRouter);
+
+//Create
+skillsRouter.post(
+    '/',
+    validateCreate,
+    skillsController.createSkill
+);
+
+//Get all Skills
+skillsRouter.get(
+    '/',
+    skillsController.getAllSkills
+);
 
 //Get Skill by id
-skillRouter.get("/:id",(_req, res) => {
-        res.json({ message: "Get skill" });
-});
+skillsRouter.get(
+    '/:id',
+    validateUUID,
+    skillsController.getSkillById
+);
 
-//Update Skill by id
-skillRouter.patch("/:id",(_req, res) => {
-    res.json({ message: "Update skill" });
-});
+//Update
+skillsRouter.patch(
+    '/:id',
+    validateUUID,
+    validateUpdate,
+    skillsController.updateSkill
+);
 
-//Delete Skill by id
-skillRouter.delete("/:id",(_req, res) => {
-    res.json({ message: "Delete skill" });
-});
+//Delete
+skillsRouter.delete(
+    '/:id',
+    validateUUID,
+    skillsController.deleteSkill
+);
 
-export default skillRouter;
+export default skillsRouter;

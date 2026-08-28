@@ -7,7 +7,7 @@ import type {
 
 //PUBLIC
 //GET ALL
-const find_all = async () => {
+const find_all_public = async () => {
     const result = await pool.query(`
         SELECT
             id,
@@ -21,7 +21,21 @@ const find_all = async () => {
 }
 
 //ADMIN
-//
+//get all
+const find_all = async () => {
+    const result = await pool.query(`
+        SELECT
+            id,
+            name,
+            description,
+            display_order
+        FROM skill_categories
+        ORDER BY display_order ASC 
+    `)
+
+    return result.rows;
+}
+
 //CREATE
 const findById = async (id: string) => {
     const result = await pool.query(`
@@ -116,10 +130,23 @@ const remove = async (id: string) => {
     return result.rows[0] ?? null;
 };
 
+//count skills in given category
+const countSkills = async (id: string) => {
+    const result = await pool.query(`
+        SELECT COUNT(*)::int AS count
+        FROM skills
+        WHERE id = $1
+    `, [id]);
+
+    return result.rows[0].count;
+};
+
 export default {
+    find_all_public,
     find_all,
     findById,
     create,
     update,
-    delete: remove
+    delete: remove,
+    countSkills
 }

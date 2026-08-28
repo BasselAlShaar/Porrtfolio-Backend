@@ -3,21 +3,37 @@ import type { Request, Response, NextFunction } from "express";
 import skills_categoryService from "../../services/skills/skills_category.service.js";
 
 //public
-const getAllSkillCategories = async (
+//get all
+const getAllSkillCategoriesPublic = async (
     _req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const skill_categories = await skills_categoryService.getAllSkillCategories();
+        const result = await skills_categoryService.getAllSkillsCategoriesPublic();
 
-        res.status(200).json(skill_categories);
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
 }
 
 //admin
+//get all
+const getAllSkillCategories = async (
+    _req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const result = await skills_categoryService.getAllSkillCategories();
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
 //get by id
 const getSkillCategoryById = async (
     req: Request<{ id: string }>,

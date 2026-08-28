@@ -5,6 +5,13 @@ import type {
     UpdateSkillsCategoryData
 } from "../../../types/skill_category.js"
 
+//public
+//get all
+const getAllSkillsCategoriesPublic = async () => {
+    return skills_categoryRepository.find_all_public();
+}
+
+//admin
 //get all
 const getAllSkillCategories = async () => {
     return skills_categoryRepository.find_all();
@@ -40,7 +47,13 @@ const deleteSkillCategory = async (id: string) => {
 
     const existingSkillCategory = await skills_categoryRepository.findById(id);
 
-    if(!existingSkillCategory) {
+    if (!existingSkillCategory) {
+        return null;
+    }
+
+    const skillCount = await skills_categoryRepository.countSkills(id);
+
+    if (skillCount > 0) {
         return null;
     }
 
@@ -48,6 +61,7 @@ const deleteSkillCategory = async (id: string) => {
 };
 
 export default {
+    getAllSkillsCategoriesPublic,
     getAllSkillCategories,
     findSkillCategoryById,
     createSkillCategory,

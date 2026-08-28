@@ -1,28 +1,51 @@
-import { Router } from "express"
+import { Router } from "express";
 
-import skills_categoryController from "../../../https/controllers/skills/skills_category.controller.js"
+//Controllers import
+import skillsCategoryController from "../../../https/controllers/skills/skills_category.controller.js";
 
-import validateUUID from "../../../https/middlewares/validateUUID.js";
+//Middlewares import
 import {
     validateCreate,
     validateUpdate
-} from "../../../https/middlewares/skills/skills_category.middleware.js"
+} from "../../../https/middlewares/skills/skills_category.middleware.js";
+
+import validateUUID from "../../../https/middlewares/validateUUID.js";
 
 const skillsCategoryRouter = Router();
 
-//get all
-skillsCategoryRouter.get("/", skills_categoryController.getAllSkillCategories)
+//Create
+skillsCategoryRouter.post(
+    '/',
+    validateCreate,
+    skillsCategoryController.createSkillCategory
+);
 
-//create
-skillsCategoryRouter.post("/", validateCreate, skills_categoryController.createSkillCategory);
+//Get all Skill Categories
+skillsCategoryRouter.get(
+    '/',
+    skillsCategoryController.getAllSkillCategories
+);
 
-//get by id
-skillsCategoryRouter.get("/:id", validateUUID, skills_categoryController.getSkillCategoryById);
+//Get Skill Category by id
+skillsCategoryRouter.get(
+    '/:id',
+    validateUUID,
+    skillsCategoryController.getSkillCategoryById
+);
 
-//update
-skillsCategoryRouter.patch("/:id", validateUUID, validateUpdate, skills_categoryController.updateSkillCategory);
+//Update
+skillsCategoryRouter.patch(
+    '/:id',
+    validateUUID,
+    validateUpdate,
+    skillsCategoryController.updateSkillCategory
+);
 
-//delete
-skillsCategoryRouter.delete("/:id", validateUUID, skills_categoryController.deleteSkillCategory);
+//Delete
+skillsCategoryRouter.delete(
+    '/:id',
+    validateUUID,
+    skillsCategoryController.deleteSkillCategory
+);
 
 export default skillsCategoryRouter;
