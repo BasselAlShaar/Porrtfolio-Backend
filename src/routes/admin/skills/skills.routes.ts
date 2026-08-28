@@ -1,7 +1,10 @@
 import { Router } from "express";
-import skills_categoryController from "../../../https/controllers/skills/skills_category.controller.js";
+import skillsCategoryRouter from "./skills_category.routes.js"
 
 const skillRouter = Router();
+
+//Categories
+skillRouter.use("/categories", skillsCategoryRouter);
 
 //Create Skill
 skillRouter.post("/",(_req, res) => {
