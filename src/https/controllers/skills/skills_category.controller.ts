@@ -117,6 +117,14 @@ const deleteSkillCategory = async (
             return
         }
 
+        if (result === 1) {
+            res.status(400).json({
+                "message":  "skill category must be empty",
+            });
+
+            return
+        }
+
         res.status(204).send();
 
     } catch (error) {

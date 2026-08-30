@@ -54,7 +54,7 @@ const deleteSkillCategory = async (id: string) => {
     const skillCount = await skills_categoryRepository.countSkills(id);
 
     if (skillCount > 0) {
-        return null;
+        return 1;
     }
 
     return skills_categoryRepository.delete(id);

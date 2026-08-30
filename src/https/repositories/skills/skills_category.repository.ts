@@ -1,9 +1,11 @@
+import { needsRehash } from "argon2";
 import pool from "../../../config/database.js";
 
 import type {
     CreateSkillsCategoryData,
     UpdateSkillsCategoryData
 } from "../../../types/skill_category.js"
+import { error } from "node:console";
 
 //PUBLIC
 //GET ALL
@@ -36,15 +38,31 @@ const find_all = async () => {
     return result.rows;
 }
 
-//CREATE
+//get one
 const findById = async (id: string) => {
     const result = await pool.query(`
         SELECT
             id,
             name,
             description,
-            display_order
-        FROM skill_categories
+            display_order,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'id', s.id,
+                            'name', s.name,
+                            'description', s.description,
+                            'icon', s.icon
+                        )
+                        ORDER BY s.display_order ASC
+                    )
+                    FROM skills s
+                    WHERE c.id = s.category_id
+                ),
+                '[]'::json
+            ) AS skills
+        FROM skill_categories c
         WHERE id = $1
         ORDER BY display_order ASC
     `,[id]);
@@ -107,7 +125,7 @@ const update = async (
 
     fields.push(`updated_at = NOW()`);
 
-    fields.push(id);
+    values.push(id);
 
     const result = await pool.query(`
         UPDATE skill_categories
@@ -121,6 +139,7 @@ const update = async (
 
 //delete
 const remove = async (id: string) => {
+
     const result = await pool.query(`
         DELETE FROM skill_categories
         WHERE id = $1
@@ -135,7 +154,7 @@ const countSkills = async (id: string) => {
     const result = await pool.query(`
         SELECT COUNT(*)::int AS count
         FROM skills
-        WHERE id = $1
+        WHERE category_id = $1
     `, [id]);
 
     return result.rows[0].count;
