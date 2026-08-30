@@ -1,26 +1,54 @@
 import { Router } from "express";
+import technologiesCategoryRouter from "./technologies_category.routes.js";
 
-const technologyRouter = Router();
+//Controllers import
+import technologiesController from "../../../https/controllers/technologies/technologies.controller.js";
 
-technologyRouter
-    .route("/")
-    .get((_req, res) => {
-        res.json({ message: "List technologies" });
-    })
-    .post((_req, res) => {
-        res.status(201).json({ message: "Create technology" });
-    });
+//Middlewares import
+import {
+    validateCreate,
+    validateUpdate
+} from "../../../https/middlewares/technologies/technologies.middleware.js";
 
-technologyRouter
-    .route("/:id")
-    .get((_req, res) => {
-        res.json({ message: "Get technology" });
-    })
-    .patch((_req, res) => {
-        res.json({ message: "Update technology" });
-    })
-    .delete((_req, res) => {
-        res.json({ message: "Delete technology" });
-    });
+import validateUUID from "../../../https/middlewares/validateUUID.js";
 
-export default technologyRouter;
+const technologiesRouter = Router();
+
+technologiesRouter.use("/categories", technologiesCategoryRouter);
+
+//Create
+technologiesRouter.post(
+    '/',
+    validateCreate,
+    technologiesController.createTechnology
+);
+
+//Get all technologies
+technologiesRouter.get(
+    '/',
+    technologiesController.getAllTechnologies
+);
+
+//Get Technology by id
+technologiesRouter.get(
+    '/:id',
+    validateUUID,
+    technologiesController.getTechnologyById
+);
+
+//Update
+technologiesRouter.patch(
+    '/:id',
+    validateUUID,
+    validateUpdate,
+    technologiesController.updateTechnology
+);
+
+//Delete
+technologiesRouter.delete(
+    '/:id',
+    validateUUID,
+    technologiesController.deleteTechnology
+);
+
+export default technologiesRouter;
