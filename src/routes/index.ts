@@ -80,7 +80,7 @@ import contactRouter from './public/contact.routes.js';
 import educationRouterPublic from './public/education.routes.js';
 import experienceRouterPublic from './public/experience.routes.js';
 import resumeRouterPublic from './public/resume.routes.js';
-import technologyRouterPublic from './public/technologies.routes.js';
+import technologyRouterPublic from './public//technologies/technologies.routes.js';
 import skillsRouterPublic from './public/skills/skills.routes.js';
 import profileRouterPublic from './public/profile.routes.js';
 import projectRouterPublic from './public/project.routes.js';
