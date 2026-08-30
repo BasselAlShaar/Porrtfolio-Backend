@@ -1,9 +1,9 @@
 import pool from "../../../config/database.js";
 
 import type {
-    CreateSkillsCategoryData,
-    UpdateSkillsCategoryData
-} from "../../../types/skill_category.js"
+    CreateTechnologiesCategoryData,
+    UpdateTechnologiesCategoryData
+} from "../../../types//technologies/technologies_category.js"
 
 //PUBLIC
 //GET ALL
@@ -13,7 +13,7 @@ const find_all_public = async () => {
             id,
             name,
             description
-        FROM skill_categories
+        FROM technology_categories
         ORDER BY display_order ASC 
     `)
 
@@ -29,7 +29,7 @@ const find_all = async () => {
             name,
             description,
             display_order
-        FROM skill_categories
+        FROM technology_categories
         ORDER BY display_order ASC 
     `)
 
@@ -55,12 +55,12 @@ const findById = async (id: string) => {
                         )
                         ORDER BY s.display_order ASC
                     )
-                    FROM skills s
+                    FROM technologies s
                     WHERE c.id = s.category_id
                 ),
                 '[]'::json
-            ) AS skills
-        FROM skill_categories c
+            ) AS technologies
+        FROM technology_categories c
         WHERE id = $1
         ORDER BY display_order ASC
     `,[id]);
@@ -69,10 +69,10 @@ const findById = async (id: string) => {
 };
 
 //create
-const create = async (data: CreateSkillsCategoryData) => {
+const create = async (data: CreateTechnologiesCategoryData) => {
 
-    const skillCategoryResult = await pool.query(`
-        INSERT INTO skill_categories (
+    const technologyCategoryResult = await pool.query(`
+        INSERT INTO technology_categories (
             name,
             description,
             display_order
@@ -87,20 +87,20 @@ const create = async (data: CreateSkillsCategoryData) => {
         data.display_order
     ]);
     
-    return skillCategoryResult.rows[0];
+    return technologyCategoryResult.rows[0];
 }
 
 //update
 const update = async (
     id: string,
-    data: UpdateSkillsCategoryData
+    data: UpdateTechnologiesCategoryData
 ) => {
 
     const fields: string[] = [];
     const values: unknown[] = [];
 
     const updatableFields: Record<
-        keyof UpdateSkillsCategoryData,
+        keyof UpdateTechnologiesCategoryData,
         string
     > = {
         name: "name",
@@ -109,7 +109,7 @@ const update = async (
     };
 
     for (const [key, column] of Object.entries(updatableFields)) {
-        const value = data[key as keyof UpdateSkillsCategoryData];
+        const value = data[key as keyof UpdateTechnologiesCategoryData];
 
         if(value !== undefined) {
             values.push(value);
@@ -126,7 +126,7 @@ const update = async (
     values.push(id);
 
     const result = await pool.query(`
-        UPDATE skill_categories
+        UPDATE technology_categories
         SET ${fields.join(", ")}
         WHERE id = $${values.length}
         RETURNING *
@@ -139,7 +139,7 @@ const update = async (
 const remove = async (id: string) => {
 
     const result = await pool.query(`
-        DELETE FROM skill_categories
+        DELETE FROM technology_categories
         WHERE id = $1
         RETURNING id
     `, [id]);
@@ -147,11 +147,11 @@ const remove = async (id: string) => {
     return result.rows[0] ?? null;
 };
 
-//count skills in given category
-const countSkills = async (id: string) => {
+//count Technologies in given category
+const countTechnologies = async (id: string) => {
     const result = await pool.query(`
         SELECT COUNT(*)::int AS count
-        FROM skills
+        FROM technologies
         WHERE category_id = $1
     `, [id]);
 
@@ -165,5 +165,5 @@ export default {
     create,
     update,
     delete: remove,
-    countSkills
+    countTechnologies
 }
