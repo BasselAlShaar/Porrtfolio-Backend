@@ -7,9 +7,9 @@ const getAllSkillsPublic = async (
     _req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
-        const result = await skillsService.getAllSkillsPublic;
+        const result = await skillsService.getAllSkillsPublic();
 
         res.status(200).json(result)
     } catch (error) {
@@ -25,7 +25,7 @@ const getAllSkills = async (
     next: NextFunction
 ) => {
     try {
-        const result = await skillsService.getAllSkills;
+        const result = await skillsService.getAllSkills();
 
         res.status(200).json(result)
     } catch (error) {
@@ -40,7 +40,7 @@ const getSkillById = async (
     next: NextFunction
 ) => {
     try {
-        const result = await skillsService.getSkillById(req.params.id);
+        const result = await skillsService.findSkillById(req.params.id);
 
         res.status(200).json(result);
     } catch (error) {

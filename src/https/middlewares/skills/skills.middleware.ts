@@ -2,12 +2,14 @@ import type { Request, Response, NextFunction } from "express";
 
 const MAX_LENGTH = {
     name: 200,
+    category_id: 200,
     description: 2000,
     icon: 200
 } as const
 
 const createAllowedFields = [
     "name",
+    "category_id",
     "description",
     "icon",
     "display_order"
@@ -15,6 +17,7 @@ const createAllowedFields = [
 
 const updateAllowedFields = [
     "name",
+    "category_id",
     "description",
     "icon",
     "display_order"
@@ -120,6 +123,35 @@ const validateStringField = (
     if (value.length > maxLength) {
         res.status(400).json({
             message: `${fieldName} must not exceed ${maxLength} characters.`,
+        });
+
+        return false;
+    }
+
+    return true;
+};
+
+const validateCategoryId = (
+    value: unknown,
+    fieldName: string,
+    res: Response,
+    required = false
+): boolean => {
+    if (value === undefined) {
+        if (required) {
+            res.status(400).json({
+                message: `${fieldName} is required and must be a valid UUID.`,
+            });
+
+            return false;
+        }
+
+        return true;
+    }
+
+    if (value === null || !isValidUUID(value)) {
+        res.status(400).json({
+            message: `${fieldName} must be a valid UUID.`,
         });
 
         return false;
@@ -251,6 +283,17 @@ const validateCreate = (
     }
 
     if (
+        !validateCategoryId(
+            body.category_id,
+            "category_id",
+            res,
+            true
+        )
+    ) {
+        return;
+    }   
+
+    if (
         !validateDisplayOrder(
             body.display_order,
             res,
@@ -303,6 +346,16 @@ const validateUpdate = (
     if (!validateCommonFields(body, res)) {
         return;
     }
+
+    if (
+        !validateCategoryId(
+            body.category_id,
+            "category_id",
+            res,
+        )
+    ) {
+        return;
+    }  
 
     next();
 };

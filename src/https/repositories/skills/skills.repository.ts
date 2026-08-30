@@ -9,43 +9,43 @@ import type {
 const find_all_public = async () => {
     const result = await pool.query(`
         SELECT
-            name,
-            description
-        COALESCE(
-            (
-                SELECT jsonb_agg(
-                    jsonb_build_object(
-                        'title', s.title,
-                        'description', s.description,
-                        'icon', s.icon
+            c.name,
+            c.description,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'name', s.name,
+                            'description', s.description,
+                            'icon', s.icon
+                        )
+                        ORDER BY s.display_order
                     )
-                    ORDER BY s.display_order
-                )
-                FROM skills s
-                WHERE s.category_id = c.id
-            ),
-            '[]'::jsonb
-        ) AS skills,
+                    FROM skills s
+                    WHERE s.category_id = c.id
+                ),
+                '[]'::json
+            ) AS skills
         FROM skill_categories c
-        ORDER BY display_order ASC 
-    `)
+        ORDER BY c.display_order ASC;
+    `);
 
     return result.rows;
-}
+};
 
 //admin
 //get all
 const find_all = async () => {
     const result = await pool.query(`
         SELECT
-            id
+            id,
             name,
             description,
-            display_order
+            display_order,
         COALESCE(
             (
-                SELECT jsonb_agg(
-                    jsonb_build_object(
+                SELECT json_agg(
+                    json_build_object(
                         'id', s.id,
                         'name', s.name,
                         'description', s.description,
@@ -57,10 +57,10 @@ const find_all = async () => {
                 FROM skills s
                 WHERE s.category_id = c.id
             ),
-            '[]'::jsonb
-        ) AS skills,
+            '[]'::json
+        ) AS skills
         FROM skill_categories c
-        ORDER BY display_order ASC 
+        ORDER BY c.display_order ASC 
     `)
 
     return result.rows;
@@ -70,49 +70,49 @@ const find_all = async () => {
 const findById = async (id: string) => {
     const result = await pool.query(`
         SELECT
-            id
-            name,
-            description,
-            display_order
-        COALESCE(
-            (
-                SELECT jsonb_agg(
-                    jsonb_build_object(
-                        'id', s.id,
-                        'name', s.name,
-                        'description', s.description,
-                        'icon', s.icon,
-                        'display_order', s.display_order
+            s.id,
+            s.name,
+            s.description,
+            s.icon,
+            s.display_order,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'id', sc.id,
+                            'name', sc.name
+                        )
+                        ORDER BY sc.display_order
                     )
-                    ORDER BY s.display_order
-                )
-                FROM skills s
-                WHERE s.category_id = c.id
-            ),
-            '[]'::jsonb
-        ) AS skills,
-        FROM skill_categories c
-        WHERE c.id = $1
-        ORDER BY display_order ASC 
-    `,[id]);
+                    FROM skill_categories sc
+                    WHERE s.category_id = sc.id
+                ),
+                '[]'::json
+            ) AS skill_category
+        FROM skills s
+        WHERE s.id = $1;
+    `, [id]);
 
-    return result.rows ?? null;
-}
+    return result.rows[0] ?? null;
+};
 
 //create
 const create = async (data: CreateSkillsData) => {
     const result = await pool.query(`
-        INSERT INTO skill_categories (
+        INSERT INTO skills (
             name,
+            category_id,
             description,
             icon,
             display_order
         )
         VALUES ( 
-            $1, $2, $3
+            $1, $2, $3, $4, $5
         )
+        RETURNING *
     `,[
         data.name,
+        data.category_id,
         data.description,
         data.icon,
         data.display_order
@@ -134,6 +134,7 @@ const update = async (
             string
         > = {
             name: "name",
+            category_id: "category_id",
             description: "description",
             icon: "icon",
             display_order: "display_order",
@@ -158,7 +159,7 @@ const update = async (
 
     const result = await pool.query(
         `
-            UPDATE skill_categories
+            UPDATE skills
             SET ${fields.join(", ")}
             WHERE id = $${values.length}
             RETURNING *;
@@ -172,7 +173,7 @@ const update = async (
 //delete
 const remove = async (id:string) => {
     const result = await pool.query(`
-        DELETE FROM skill_categories
+        DELETE FROM skills
         WHERE id = $1
         Returning id
     `,[id])
