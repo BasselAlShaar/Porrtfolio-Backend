@@ -12,12 +12,12 @@
 //
 // ================================================================
 
-import educationRepository from "../repositories/education.repository.js";
+import educationRepository from "../../repositories/education.repository.js";
 
 import type {
     CreateEducationData,
     UpdateEducationData,
-} from "../../types/education.js";
+} from "../../../types/education.js";
 
 // ================================================================
 //    DATE VALIDATION

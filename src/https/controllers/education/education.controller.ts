@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import educationService from "../services/education.service.js";
+import educationService from "../../services/education/education.service.js";
 
 // Get All
 const getAllEducations = async (

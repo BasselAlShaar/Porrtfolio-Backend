@@ -17,13 +17,13 @@
 import { Router } from "express";
 
 //Controller imports
-import educationController from "../../../https/controllers/education.controller.js";
+import educationController from "../../../https/controllers/education/education.controller.js";
 
 //Middleware imports
 import { 
     validateCreate,
     validateUpdate 
-} from "../../../https/middlewares/education.middleware.js";
+} from "../../../https/middlewares/education/education.middleware.js";
 
 import validateUUID from "../../../https/middlewares/validateUUID.js";
 

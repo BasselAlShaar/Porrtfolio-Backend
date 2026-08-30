@@ -32,7 +32,7 @@ import { Router } from "express";
 // Separation of concerns doing its thing.
 //
 // ================================================================
-import educationController from "../../https/controllers/education.controller.js";
+import educationController from "../../https/controllers/education/education.controller.js";
 
 // ================================================================
 //    ROUTER

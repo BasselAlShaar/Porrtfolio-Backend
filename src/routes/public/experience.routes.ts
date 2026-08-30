@@ -32,7 +32,7 @@ import { Router } from "express";
 // ================================================================
 
 // Controller imports
-import experienceController from "../../https/controllers/experience.controller.js";
+import experienceController from "../../https/controllers/experience/experience.controller.js";
 
 // ================================================================
 //    ROUTER

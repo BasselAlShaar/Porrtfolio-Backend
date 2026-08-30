@@ -20,13 +20,13 @@
 import { Router } from "express";
 
 //Controllers import
-import experienceController from "../../../https/controllers/experience.controller.js";
+import experienceController from "../../../https/controllers/experience/experience.controller.js";
 
 //Middlewares import
 import {
     validateCreate,
     validateUpdate
-} from "../../../https/middlewares/experience.middleware.js";
+} from "../../../https/middlewares/experience/experience.middleware.js";
 
 import validateUUID from "../../../https/middlewares/validateUUID.js";
 

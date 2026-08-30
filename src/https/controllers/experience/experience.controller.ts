@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 
-import experienceService from '../services/experience.service.js';
+import experienceService from '../../services/experience/experience.service.js';
 
 // Get All
 const getAllExperiences = async (
