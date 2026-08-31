@@ -9,10 +9,112 @@
 // No frontend magic here.
 // Just TypeScript, Express, PostgreSQL, and questionable decisions.
 //
-// Days Here: 14 
+// Days Here: 19
 // Scream Counter: 147
 //
 // ================================================================
+
+/*
+!   Education Achievements
+Todo : education achievements repository
+Todo : education achievements service
+Todo : education achievements middleware
+Todo : education achievements controller
+Todo : education achievements routes
+
+!   Experience Achievements
+Todo : education achievements repository
+Todo : education achievements service
+Todo : education achievements middleware
+Todo : education achievements controller
+Todo : education achievements routes
+
+!   Experience Responsibilities
+Todo : experience responsibilities repository
+Todo : experience responsibilities service
+Todo : experience responsibilities middleware
+Todo : experience responsibilities controller
+Todo : experience responsibilities routes
+
+!   Personal Info
+Todo : personal info repository
+Todo : personal info service
+Todo : personal info middleware
+Todo : personal info controller
+Todo : personal info routes
+
+!   Personal Info
+Todo : personal info repository
+Todo : personal info service
+Todo : personal info middleware
+Todo : personal info controller
+Todo : personal info routes
+
+!   Projects
+Todo : projects repository
+Todo : projects service
+Todo : projects middleware
+Todo : projects controller
+Todo : projects routes
+
+!   Project Challenges
+Todo : project challenges repository
+Todo : project challenges service
+Todo : project challenges middleware
+Todo : project challenges controller
+Todo : project challenges routes
+
+!   Project features
+Todo : project features repository
+Todo : project features service
+Todo : project features middleware
+Todo : project features controller
+Todo : project features routes
+
+!   Project images
+Todo : project images repository
+Todo : project images service
+Todo : project images middleware
+Todo : project images controller
+Todo : project images routes
+
+!   Project links
+Todo : project links repository
+Todo : project links service
+Todo : project links middleware
+Todo : project links controller
+Todo : project links routes
+
+!   Project skills
+Todo : project skills repository
+Todo : project skills service
+Todo : project skills middleware
+Todo : project skills controller
+Todo : project skills routes
+
+!   Project technologies
+Todo : project technologies repository
+Todo : project technologies service
+Todo : project technologies middleware
+Todo : project technologies controller
+Todo : project technologies routes
+
+!   Resume
+Todo : resume repository
+Todo : resume service
+Todo : resume middleware
+Todo : resume controller
+Todo : resume routes
+
+!   Social links
+Todo : social links repository
+Todo : social links service
+Todo : social links middleware
+Todo : social links controller
+Todo : social links routes
+
+*/
+
 
 import 'dotenv/config';
 import express from 'express';

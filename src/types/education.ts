@@ -28,3 +28,5 @@ export interface CreateEducationAchievementData {
 }
 
 export type UpdateEducationData = Partial<EducationData>;
+
+export type UpdateEducationAchievementData = Partial<CreateEducationAchievementData>;
