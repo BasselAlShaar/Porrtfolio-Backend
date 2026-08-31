@@ -26,9 +26,12 @@ import {
 } from "../../../https/middlewares/education/education.middleware.js";
 
 import validateUUID from "../../../https/middlewares/validateUUID.js";
+import educationAchievementsRouter from "./education_achievements.routes.js";
 
 // My handy dandy router <3
 const educationRouter = Router();
+
+educationRouter.use("/achievements", educationAchievementsRouter);
 
 // ================================================================
 //    CREATE

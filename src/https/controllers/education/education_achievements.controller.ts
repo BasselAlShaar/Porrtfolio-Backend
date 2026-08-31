@@ -75,3 +75,11 @@ const deleteEducationAchievement = async (
         next(error)
     }
 }
+
+export default {
+    getAllEducationAchievements,
+    getEducationAchievementById,
+    createEducationAchievement,
+    updateEducationAchievement,
+    deleteEducationAchievement
+}
