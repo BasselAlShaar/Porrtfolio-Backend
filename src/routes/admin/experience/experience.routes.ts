@@ -29,8 +29,11 @@ import {
 } from "../../../https/middlewares/experience/experience.middleware.js";
 
 import validateUUID from "../../../https/middlewares/validateUUID.js";
+import experienceAchievementsRouter from "./experience_achievements.routes.js";
 
 const experienceRouter = Router();
+
+experienceRouter.use("/achievements",experienceAchievementsRouter);
 
 // ================================================================
 //    CREATE
