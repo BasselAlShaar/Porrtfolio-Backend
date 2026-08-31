@@ -7,4 +7,8 @@ export interface EducationAchievementsData {
 
 export type CreateEducationAchievementsData = EducationAchievementsData;
 
-export type UpdateEducationAchievementsData = Partial<EducationAchievementsData>;
+export type UpdateEducationAchievementsData = {
+    title?: string | null;
+    description: string | null;
+    display_order?: number | null;
+}
