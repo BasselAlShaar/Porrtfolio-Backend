@@ -57,9 +57,8 @@ const findAll = async () => {
                 WHERE a.education_id = e.id
             ),
             '[]'::jsonb
-        ) AS achievements,
-        
-        FROM education
+        ) AS achievements
+        FROM education e
         ORDER BY display_order ASC, start_date DESC;
         `
     );
@@ -87,7 +86,7 @@ const findById = async (id: string) => {
             e.start_date,
             e.end_date,
             e.is_current,
-            e.display_order
+            e.display_order,
         
         COALESCE(
             (
@@ -104,9 +103,8 @@ const findById = async (id: string) => {
                 WHERE ea.education_id = e.id
             ),
             '[]'::jsonb
-        ) AS achievements,
-        
-        FROM education
+        ) AS achievements
+        FROM education e
         WHERE id = $1;
         `,
         [id]
@@ -244,7 +242,7 @@ const update = async (
 
     const result = await pool.query(
         `
-            UPDATE experience
+            UPDATE education
             SET ${fields.join(", ")}
             WHERE id = $${values.length}
             RETURNING *;

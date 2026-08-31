@@ -40,7 +40,7 @@ const getById = async (id: string) => {
 }
 
 //create
-const create = async (id: string, data: CreateEducationAchievementsData) => {
+const create = async (data: CreateEducationAchievementsData) => {
     const result = await pool.query(
         `
         INSERT INTO education_achievements  (
@@ -54,7 +54,7 @@ const create = async (id: string, data: CreateEducationAchievementsData) => {
         )
         Returning *
         `,[
-            id,
+            data.education_id,
             data.title,
             data.description,
             data.display_order
@@ -100,7 +100,7 @@ const update = async (
 
     const result = await pool.query(
         `
-            UPDATE experience
+            UPDATE education_achievements
             SET ${fields.join(", ")}
             WHERE id = $${values.length}
             RETURNING *;

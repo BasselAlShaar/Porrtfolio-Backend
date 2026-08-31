@@ -33,12 +33,12 @@ const getEducationAchievementById = async (
 
 //create
 const createEducationAchievement = async (
-    req: Request<{ id: string }>,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const result = await education_achievementsService.createEducationAchievement(req.params.id, req.body);
+        const result = await education_achievementsService.createEducationAchievement(req.body);
 
         res.status(201).json(result);
     } catch (error) {

@@ -6,11 +6,11 @@ import { validateCreate, validateUpdate } from "../../../https/middlewares/educa
 
 const educationAchievementsRouter = Router();
 
-educationAchievementsRouter.get("/all/:id", validateUUID, education_achievementsController.getAllEducationAchievements);
+educationAchievementsRouter.get("/", education_achievementsController.getAllEducationAchievements);
 
 educationAchievementsRouter.get("/:id", validateUUID, education_achievementsController.getEducationAchievementById);
 
-educationAchievementsRouter.post("/:id", validateUUID, validateCreate, education_achievementsController.createEducationAchievement);
+educationAchievementsRouter.post("/", validateCreate, education_achievementsController.createEducationAchievement);
 
 educationAchievementsRouter.patch("/:id", validateUUID, validateUpdate, education_achievementsController.updateEducationAchievement);
 

@@ -17,10 +17,9 @@ const getEducationAchievementById = async (id: string) => {
 
 //create
 const createEducationAchievement = async (
-    id: string,
     data: CreateEducationAchievementsData
 ) => {
-    return education_achievementsRepository.create(id,data);
+    return education_achievementsRepository.create(data);
 }
 
 //update
