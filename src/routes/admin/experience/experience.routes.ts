@@ -30,10 +30,12 @@ import {
 
 import validateUUID from "../../../https/middlewares/validateUUID.js";
 import experienceAchievementsRouter from "./experience_achievements.routes.js";
+import experienceResponsibilitiesRouter from "./experience_responsibilities.routes.js";
 
 const experienceRouter = Router();
 
-experienceRouter.use("/achievements",experienceAchievementsRouter);
+experienceRouter.use("/achievements", experienceAchievementsRouter);
+experienceRouter.use("/responsibilities", experienceResponsibilitiesRouter);
 
 // ================================================================
 //    CREATE
