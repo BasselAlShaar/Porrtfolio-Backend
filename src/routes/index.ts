@@ -82,7 +82,7 @@ import experienceRouterPublic from './public/experience.routes.js';
 import resumeRouterPublic from './public/resume.routes.js';
 import technologyRouterPublic from './public//technologies/technologies.routes.js';
 import skillsRouterPublic from './public/skills/skills.routes.js';
-import profileRouterPublic from './public/profile.routes.js';
+import personalInfoRouterPublic from './public/personal_info/personal_info.routes.js';
 import projectRouterPublic from './public/project.routes.js';
 
 // ================================================================
@@ -178,7 +178,7 @@ router.use("/contact", contactRouter);
 // Very meta.
 //
 // ================================================================
-router.use("/profiles", profileRouterPublic);
+router.use("/personal_info", personalInfoRouterPublic);
 
 // ================================================================
 //    RESUME
