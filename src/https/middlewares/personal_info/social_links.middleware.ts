@@ -485,7 +485,7 @@ const validateUpdate = (
     next();
 };
 
-export {
+export default{
     validateCreate,
     validateUpdate,
 };
