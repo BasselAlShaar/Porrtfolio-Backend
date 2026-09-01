@@ -38,7 +38,7 @@ import experienceRouter from "./experience/experience.routes.js";
 import messageRouter from "./messages/message.routes.js";
 import projectRouter from "./projects/project.routes.js";
 import technologyRouter from "./technologies/technologies.routes.js";
-import profileRouter from "./profile/profile.routes.js";
+import profileRouter from "./personal_info/personal_info.routes.js";
 import skillRouter from "./skills/skills.routes.js";
 
 // ================================================================
