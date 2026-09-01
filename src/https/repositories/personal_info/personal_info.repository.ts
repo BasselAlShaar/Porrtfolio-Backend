@@ -1,12 +1,11 @@
 import pool from "../../../config/database.js";
 
 import type {
-    CreatePersonalInfoData,
     UpdatePersonalInfoData,
 } from "../../../types/personal_info/personal_info.js";
 
 //get
-const get = async (id: string) => {
+const get = async () => {
     const result = await pool.query(
         `
         SELECT
@@ -41,7 +40,7 @@ const get = async (id: string) => {
             '[]'::json
         ) AS social_links
         FROM personal_info p
-        `,[id]
+        `
     );
 
     return result.rows[0] ?? null;
@@ -49,7 +48,6 @@ const get = async (id: string) => {
 
 // Update
 const update = async (
-    id: string,
     data: UpdatePersonalInfoData
 ) => {
     const fields: string[] = [];
@@ -86,13 +84,10 @@ const update = async (
 
     fields.push(`updated_at = NOW()`);
 
-    values.push(id);
-
     const result = await pool.query(
         `
             UPDATE personal_info
             SET ${fields.join(", ")}
-            WHERE id = $${values.length}
             RETURNING *;
         `,
         values

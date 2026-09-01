@@ -13,8 +13,4 @@ export interface PersonalInfoData {
     availability_text: string | null ;
 }
 
-export interface CreatePersonalInfoData extends PersonalInfoData {
-    links?: CreateSocialLinksData[];
-}
-
 export type UpdatePersonalInfoData = Partial<PersonalInfoData>;
