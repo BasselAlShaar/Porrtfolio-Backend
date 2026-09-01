@@ -1,5 +1,3 @@
-import type { CreateSocialLinksData } from "./social_links.js";
-
 export interface PersonalInfoData {
     full_name: string;
     professional_title: string;
