@@ -12,7 +12,7 @@ const getPublicResume = async () => {
             SELECT
                 title,
                 file_url,
-                file_name,
+                file_name
             FROM resumes
             WHERE is_active = true
         `
