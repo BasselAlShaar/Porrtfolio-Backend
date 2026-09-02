@@ -39,13 +39,13 @@
 //Todo : experience responsibilities controller
 //Todo : experience responsibilities routes
 
-!   Social links
-Todo : social links types
-Todo : social links repository
-Todo : social links service
-Todo : social links middleware
-Todo : social links controller
-Todo : social links routes
+//!   Social links
+//Todo : social links types
+//Todo : social links repository
+//Todo : social links service
+//Todo : social links middleware
+//Todo : social links controller
+//Todo : social links routes
 
 !   Resume
 Todo : resume types
@@ -55,13 +55,13 @@ Todo : resume middleware
 Todo : resume controller
 Todo : resume routes
 
-!   Personal Info
-Todo : personal info types
-Todo : personal info repository
-Todo : personal info service
-Todo : personal info middleware
-Todo : personal info controller
-Todo : personal info routes
+//!   Personal Info
+//Todo : personal info types
+//Todo : personal info repository
+//Todo : personal info service
+//Todo : personal info middleware
+//Todo : personal info controller
+//Todo : personal info routes
 
 !   Projects
 Todo : projects types

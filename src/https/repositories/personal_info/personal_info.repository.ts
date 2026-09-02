@@ -34,7 +34,7 @@ const get = async () => {
                     )
                     ORDER BY s.display_order
                 )
-                FROM social_link s
+                FROM social_links s
                 WHERE s.personal_info_id = p.id
             ),
             '[]'::json

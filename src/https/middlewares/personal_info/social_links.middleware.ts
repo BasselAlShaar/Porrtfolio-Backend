@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
 const MAX_LENGTH = {
-    personal_info_id: 200,
     platform: 200,
     label: 200,
     url: 2048,
@@ -10,7 +9,6 @@ const MAX_LENGTH = {
 } as const;
 
 const createAllowedFields = [
-    "personal_info_id",
     "platform",
     "label",
     "url",
@@ -45,16 +43,6 @@ const isValidUrl = (value: unknown): value is string => {
     } catch {
         return false;
     }
-};
-
-const isValidUUID = (value: unknown): value is string => {
-    if (typeof value !== "string") {
-        return false;
-    }
-
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        value
-    );
 };
 
 const isNonNegativeInteger = (value: unknown): value is number => {
@@ -128,35 +116,6 @@ const validateStringField = (
     if (value.length > maxLength) {
         res.status(400).json({
             message: `${fieldName} must not exceed ${maxLength} characters.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
-const validatePersonalInfoId = (
-    value: unknown,
-    fieldName: string,
-    res: Response,
-    required = false
-): boolean => {
-    if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid UUID.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null || !isValidUUID(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid UUID.`,
         });
 
         return false;
@@ -353,17 +312,6 @@ const validateCreate = (
             body,
             createAllowedFields,
             res
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validatePersonalInfoId(
-            body.personal_info_id,
-            "personal_info_id",
-            res,
-            true
         )
     ) {
         return;

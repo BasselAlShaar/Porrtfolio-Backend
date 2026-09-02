@@ -1,5 +1,4 @@
 export interface SocialLinksData {
-    personal_info_id: string;
     platform: string;
     label: string | null;
     url: string;

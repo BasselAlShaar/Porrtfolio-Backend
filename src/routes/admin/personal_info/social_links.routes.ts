@@ -12,7 +12,7 @@ const socialLinksRouter = Router();
 socialLinksRouter.get('/', socialLinksController.getAllSocialLinks);
 socialLinksRouter.get('/:id', validateUUID,socialLinksController.getSocialLinkById);
 socialLinksRouter.post('/', validateCreate, socialLinksController.createSocialLink);
-socialLinksRouter.put('/:id', validateUUID, validateUpdate, socialLinksController.updateSocialLink);
+socialLinksRouter.patch('/:id', validateUUID, validateUpdate, socialLinksController.updateSocialLink);
 socialLinksRouter.delete('/:id', validateUUID, socialLinksController.deleteSocialLink);
 
 export default socialLinksRouter;

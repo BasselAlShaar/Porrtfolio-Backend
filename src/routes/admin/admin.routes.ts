@@ -38,7 +38,7 @@ import experienceRouter from "./experience/experience.routes.js";
 import messageRouter from "./messages/message.routes.js";
 import projectRouter from "./projects/project.routes.js";
 import technologyRouter from "./technologies/technologies.routes.js";
-import profileRouter from "./personal_info/personal_info.routes.js";
+import personalInfoRouter from "./personal_info/personal_info.routes.js";
 import skillRouter from "./skills/skills.routes.js";
 
 // ================================================================
@@ -120,7 +120,7 @@ adminRouter.use('/technologies', technologyRouter);
 
 // The API that manages the API owner's information.
 // Very meta.
-adminRouter.use('/profiles', profileRouter);
+adminRouter.use('/personal_info', personalInfoRouter);
 
 // Because "I know stuff" isn't a database schema.
 adminRouter.use('/skills', skillRouter);

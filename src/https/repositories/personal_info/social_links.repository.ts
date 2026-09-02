@@ -49,6 +49,12 @@ export const getById = async (id: string) => {
 
 //create
 export const create = async (data: CreateSocialLinksData) => {
+
+    const personal_info_id = await pool.query(
+        `
+            SELECT id FROM personal_info
+        `
+    );
     const result = await pool.query(
         `
             INSERT INTO social_links (
@@ -68,7 +74,7 @@ export const create = async (data: CreateSocialLinksData) => {
             RETURNING *
         `,
         [
-            data.personal_info_id,
+            personal_info_id.rows[0].id,
             data.platform,
             data.label,
             data.url,
