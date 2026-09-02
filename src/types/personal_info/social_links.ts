@@ -9,4 +9,4 @@ export interface SocialLinksData {
 
 export type CreateSocialLinksData = SocialLinksData;
 
-export type UpdateSocialLinksData = Omit<Partial<SocialLinksData>, 'personal_info_id'>;
+export type UpdateSocialLinksData = Partial<SocialLinksData>;
