@@ -158,11 +158,62 @@ const remove = async (id: string) => {
     return result.rows[0] ?? null;
 };
 
+//deactivate all resumes
+const deactivateAll = async () => {
+    await pool.query(
+        `
+            UPDATE resumes
+            SET is_active = false
+        `
+    );
+}
+
+//count resumes
+const count = async () => {
+    const result = await pool.query(
+        `
+            SELECT COUNT(*) AS count
+            FROM resumes
+        `
+    );
+
+    return parseInt(result.rows[0].count, 10);
+};
+
+//activate a specific resume
+const activate = async (id: string) => {
+    await pool.query(
+        `
+            UPDATE resumes
+            SET is_active = true
+            WHERE id = $1
+        `,
+        [id]
+    );
+};
+
+//get previous resume by created_at
+const getPreviousResume = async (id: string) => {
+    const result = await pool.query(`
+        SELECT id
+        FROM resumes
+        WHERE id <> $1
+        ORDER BY created_at DESC
+        LIMIT 1;
+    `, [id]);
+
+    return result.rows[0] ?? null;
+};
+
 export default {
     getPublicResume,
     find_all,
     getById,
     create,
     update,
-    remove
+    remove,
+    deactivateAll,
+    count,
+    activate,
+    getPreviousResume
 };
