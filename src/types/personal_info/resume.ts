@@ -7,6 +7,6 @@ export interface ResumesData {
     display_order: number;
 }
 
-export type CreateResumesData = ResumesData;
+export type CreateResumeData = ResumesData;
 
-export type UpdateResumesData = Partial<ResumesData>;
+export type UpdateResumeData = Partial<ResumesData>;
