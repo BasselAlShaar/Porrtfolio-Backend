@@ -85,3 +85,12 @@ const remove = async (
         res.status(500).json({ error: (error as Error).message });
     }
 };
+
+export default {
+    getPublicResume,
+    find_all,
+    getById,
+    create,
+    update,
+    remove
+};
