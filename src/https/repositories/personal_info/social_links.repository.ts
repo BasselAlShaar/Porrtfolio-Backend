@@ -11,7 +11,6 @@ export const find_all = async () => {
         `
             SELECT
                 id,
-                personal_info_id,
                 platform,
                 label,
                 url,
@@ -31,7 +30,6 @@ export const getById = async (id: string) => {
         `
             SELECT
                 id,
-                personal_info_id,
                 platform,
                 label,
                 url,
@@ -50,15 +48,9 @@ export const getById = async (id: string) => {
 //create
 export const create = async (data: CreateSocialLinksData) => {
 
-    const personal_info_id = await pool.query(
-        `
-            SELECT id FROM personal_info
-        `
-    );
     const result = await pool.query(
         `
             INSERT INTO social_links (
-                personal_info_id,
                 platform,
                 label,
                 url,
@@ -69,12 +61,10 @@ export const create = async (data: CreateSocialLinksData) => {
             VALUES (
                 $1, $2, $3,
                 $4, $5, $6,
-                $7
             )
             RETURNING *
         `,
         [
-            personal_info_id.rows[0].id,
             data.platform,
             data.label,
             data.url,
