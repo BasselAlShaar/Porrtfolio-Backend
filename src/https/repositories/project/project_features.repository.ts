@@ -1,9 +1,9 @@
 import pool from "../../../config/database.js";
 
 import type {
-    CreateProjectImagesData,
-    UpdateProjectImagesData
-} from "../../../types/project/project_images.js";
+    CreateProjectFeaturesData,
+    UpdateProjectFeaturesData
+} from "../../../types/project/project_features.js";
 
 //admin
 //get all
@@ -12,12 +12,10 @@ const find_all = async (id: string) => {
         `
             SELECT
                 id,
-                image_url,
-                alt_text,
-                caption,
-                image_type,
+                title,
+                description,
                 display_order
-            FROM project_images
+            FROM project_features
             WHERE project_id = $1
         `,[id]
     )
@@ -31,12 +29,10 @@ const getById = async (id: string) => {
         `
             SELECT
                 id,
-                image_url,
-                alt_text,
-                caption,
-                image_type,
+                title,
+                description,
                 display_order
-            FROM project_images
+            FROM project_features
             WHERE id = $1
         `,[id]
     );
@@ -45,28 +41,23 @@ const getById = async (id: string) => {
 }
 
 //create
-const create = async (data: CreateProjectImagesData) => {
+const create = async (data: CreateProjectFeaturesData) => {
     const result = await pool.query(
         `
-        INSERT INTO project_images  (
+        INSERT INTO project_features  (
             project_id,
-            image_url,
-            alt_text,
-            caption,
-            image_type,
+            title,
+            description,
             display_order
         )
         VALUES (
-            $1, $2, $3,
-            $4, $5, $6
+            $1, $2, $3, $4
         )
         Returning *
         `,[
             data.project_id,
-            data.image_url,
-            data.alt_text,
-            data.caption,
-            data.image_type,
+            data.title,
+            data.description,
             data.display_order
         ]
     )
@@ -77,24 +68,22 @@ const create = async (data: CreateProjectImagesData) => {
 //update
 const update = async (
     id: string,
-    data: UpdateProjectImagesData
+    data: UpdateProjectFeaturesData
 ) => {
     const fields: string[] = [];
     const values: unknown[] = [];
 
     const updateableFields: Record<
-            keyof UpdateProjectImagesData,
+            keyof UpdateProjectFeaturesData,
             string
         > = {
-            image_url: "image_url",
-            alt_text: "alt_text",
-            caption: "caption",
-            image_type: "image_type",
+            title: "title",
+            description: "description",
             display_order: "display_order",
         };
 
     for (const [key, column] of Object.entries(updateableFields)) {
-            const value = data[key as keyof UpdateProjectImagesData];
+            const value = data[key as keyof UpdateProjectFeaturesData];
     
             if (value !== undefined) {
                 values.push(value);
@@ -112,7 +101,7 @@ const update = async (
 
     const result = await pool.query(
         `
-            UPDATE project_images
+            UPDATE project_features
             SET ${fields.join(", ")}
             WHERE id = $${values.length}
             RETURNING *;
@@ -127,7 +116,7 @@ const update = async (
 const remove = async (id: string) => {
     const result = await pool.query(
         `
-            DELETE FROM project_images
+            DELETE FROM project_features
             WHERE id = $1
             RETURNING id
         `,[id]
