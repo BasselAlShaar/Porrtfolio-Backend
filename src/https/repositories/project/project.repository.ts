@@ -168,6 +168,8 @@ const get_one_public = async (slug: string) => {
             WHERE p.slug = $1
         `,[slug]
     );
+
+    return result.rows[0] ?? null;
 }
 
 //Admin
@@ -211,7 +213,7 @@ const find_all_card = async () => {
 }
 
 //get one
-const getById = async (slug: string) => {
+const getBySlug = async (slug: string) => {
     const result = await pool.query(
         `
             SELECT
@@ -341,6 +343,8 @@ const getById = async (slug: string) => {
             WHERE p.slug = $1
         `,[slug]
     );
+
+    return result.rows[0] ?? null;
 }
 
 //create
@@ -618,7 +622,7 @@ export default {
     find_all_public_card,
     get_one_public,
     find_all_card,
-    getById,
+    getBySlug,
     create,
     update,
     delete: remove
