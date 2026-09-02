@@ -1,6 +1,6 @@
 export interface SocialLinksData {
     platform: string;
-    label: string | null;
+    label?: string | null;
     url: string;
     icon?: string | null;
     display_order: number;
