@@ -48,11 +48,11 @@
 //Todo : social links routes
 
 !   Resume
-Todo : resume types
-Todo : resume repository
-Todo : resume service
+//Todo : resume types
+//Todo : resume repository
+//Todo : resume service
 Todo : resume middleware
-Todo : resume controller
+//Todo : resume controller
 Todo : resume routes
 
 //!   Personal Info
@@ -120,7 +120,6 @@ Todo : project technologies controller
 Todo : project technologies routes
 
 */
-
 
 import 'dotenv/config';
 import express from 'express';
