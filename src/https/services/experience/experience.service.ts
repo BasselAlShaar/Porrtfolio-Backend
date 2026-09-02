@@ -17,11 +17,11 @@
 //     "I left in 2022"
 //
 // ================================================================
-import experienceRepository from "../../repositories/experience.repository.js";
+import experienceRepository from "../../repositories/experience/experience.repository.js";
 import type {
     CreateExperienceData,
     UpdateExperienceData,
-} from "../../../types/experience.js";
+} from "../../../types/experience/experience.js";
 
 // ================================================================
 //    DATE VALIDATION

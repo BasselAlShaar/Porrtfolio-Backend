@@ -1,9 +1,9 @@
-import pool from "../../config/database.js";
+import pool from "../../../config/database.js";
 
 import type {
     UpdateExperienceData,
     CreateExperienceData
-} from "../../types/experience.js";
+} from "../../../types/experience/experience.js";
 
 // ================================================================
 //    EXPERIENCE REPOSITORY

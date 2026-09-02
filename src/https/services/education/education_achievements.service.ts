@@ -3,7 +3,7 @@ import education_achievementsRepository from "../../repositories/education/educa
 import type { 
     CreateEducationAchievementsData,
     UpdateEducationAchievementsData
-} from "../../../types/education_achievements.js";
+} from "../../../types/education/education_achievements.js";
 
 //get all
 const getAllEducationAchievements = async (id: string) => {

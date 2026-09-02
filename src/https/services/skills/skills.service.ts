@@ -3,7 +3,7 @@ import skillsRepository from "../../repositories/skills/skills.repository.js";
 import type {
     CreateSkillsData,
     UpdateSkillsData
-} from "../../../types/skills.js"
+} from "../../../types/skills/skills.js"
 
 //public
 //get all

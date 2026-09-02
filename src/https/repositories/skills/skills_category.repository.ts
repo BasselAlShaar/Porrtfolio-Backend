@@ -3,7 +3,7 @@ import pool from "../../../config/database.js";
 import type {
     CreateSkillsCategoryData,
     UpdateSkillsCategoryData
-} from "../../../types/skill_category.js"
+} from "../../../types/skills/skill_category.js"
 
 //PUBLIC
 //GET ALL

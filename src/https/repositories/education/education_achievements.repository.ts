@@ -3,7 +3,7 @@ import pool from "../../../config/database.js";
 import type {
     CreateEducationAchievementsData,
     UpdateEducationAchievementsData
-} from "../../../types/education_achievements.js";
+} from "../../../types/education/education_achievements.js";
 
 //admin
 //get all

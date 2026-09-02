@@ -2,7 +2,7 @@ import pool from "../../../config/database.js";
 import type {
     CreateSkillsData,
     UpdateSkillsData
-} from "../../../types/skills.js";
+} from "../../../types/skills/skills.js";
 
 //public
 //get all

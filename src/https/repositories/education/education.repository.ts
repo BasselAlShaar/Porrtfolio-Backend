@@ -18,12 +18,12 @@
 // ! Message to future me:
 // ! Update this code to get show everything with their respective details
 // ================================================================
-import pool from "../../config/database.js";
+import pool from "../../../config/database.js";
 
 import type {
     CreateEducationData,
     UpdateEducationData,
-} from "../../types/education.js";
+} from "../../../types/education/education.js";
 
 // PUBLIC
 // Get All

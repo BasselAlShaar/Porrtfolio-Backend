@@ -51,9 +51,9 @@
 //Todo : resume types
 //Todo : resume repository
 //Todo : resume service
-Todo : resume middleware
+//Todo : resume middleware
 //Todo : resume controller
-Todo : resume routes
+//Todo : resume routes
 
 //!   Personal Info
 //Todo : personal info types
