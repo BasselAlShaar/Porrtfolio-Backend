@@ -64,7 +64,7 @@
 //Todo : personal info routes
 
 !   Projects
-Todo : projects types
+//Todo : projects types
 Todo : projects repository
 Todo : projects service
 Todo : projects middleware
@@ -72,7 +72,7 @@ Todo : projects controller
 Todo : projects routes
 
 !   Project Challenges
-Todo : project challenges types
+//Todo : project challenges types
 Todo : project challenges repository
 Todo : project challenges service
 Todo : project challenges middleware
@@ -80,7 +80,7 @@ Todo : project challenges controller
 Todo : project challenges routes
 
 !   Project features
-Todo : project features types
+//Todo : project features types
 Todo : project features repository
 Todo : project features service
 Todo : project features middleware
@@ -88,7 +88,7 @@ Todo : project features controller
 Todo : project features routes
 
 !   Project images
-Todo : project images types
+//Todo : project images types
 Todo : project images repository
 Todo : project images service
 Todo : project images middleware
@@ -96,7 +96,7 @@ Todo : project images controller
 Todo : project images routes
 
 !   Project links
-Todo : project links types
+//Todo : project links types
 Todo : project links repository
 Todo : project links service
 Todo : project links middleware
@@ -104,7 +104,7 @@ Todo : project links controller
 Todo : project links routes
 
 !   Project skills
-Todo : project skills types
+//Todo : project skills types
 Todo : project skills repository
 Todo : project skills service
 Todo : project skills middleware
@@ -112,7 +112,7 @@ Todo : project skills controller
 Todo : project skills routes
 
 !   Project technologies
-Todo : project technologies types
+//Todo : project technologies types
 Todo : project technologies repository
 Todo : project technologies service
 Todo : project technologies middleware

@@ -2,7 +2,7 @@ import type { CreateTechnologiesData } from "../technologies/technologies.js";
 import type { CreateSkillsData } from "../skills/skills.js";
 
 import type { CreateProjectLinksData } from "./project_links.js";
-import type { CreateProjectImagesData } from "./project_Images.js";
+import type { CreateProjectImagesData } from "./project_images.js";
 import type { CreateProjectFeaturesData } from "./project_features.js";
 import type { CreateProjectChallengesData } from "./project_challenges.js";
 
