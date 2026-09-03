@@ -83,7 +83,7 @@ import resumeRouterPublic from './public/personal_info/resume.routes.js';
 import technologyRouterPublic from './public//technologies/technologies.routes.js';
 import skillsRouterPublic from './public/skills/skills.routes.js';
 import personalInfoRouterPublic from './public/personal_info/personal_info.routes.js';
-import projectRouterPublic from './public/project.routes.js';
+import projectRouterPublic from './public/project/projects.routes.js';
 
 // ================================================================
 //    ROUTER INITIALIZATION
