@@ -237,7 +237,7 @@ const getBySlug = async (slug: string) => {
                             'id', s.id,
                             'name', s.name,
                             'icon', s.icon,
-                            'display_order', c.display_order
+                            'display_order', s.display_order
                         )
                         ORDER BY s.display_order, s.id
                     )
@@ -256,7 +256,7 @@ const getBySlug = async (slug: string) => {
                             'id', t.id,
                             'name', t.name,
                             'icon', t.icon,
-                            'display_order', c.display_order
+                            'display_order', t.display_order
                         )
                         ORDER BY t.display_order, t.id
                     )
@@ -276,7 +276,7 @@ const getBySlug = async (slug: string) => {
                             'link_type', l.link_type,
                             'label', l.label,
                             'url', l.url,
-                            'display_order', c.display_order
+                            'display_order', l.display_order
                         )
                         ORDER BY l.display_order
                     )
@@ -295,7 +295,7 @@ const getBySlug = async (slug: string) => {
                             'alt_text', i.alt_text,
                             'caption', i.caption,
                             'image_type', i.image_type,
-                            'display_order', c.display_order
+                            'display_order', i.display_order
                         )
                         ORDER BY i.display_order
                     )
@@ -312,7 +312,7 @@ const getBySlug = async (slug: string) => {
                             'id', f.id,
                             'title', f.title,
                             'description', f.description,
-                            'display_order', c.display_order
+                            'display_order', f.display_order
                         )
                         ORDER BY f.display_order
                     )

@@ -11,6 +11,7 @@ import projectLinksRouter from "./project_links.routes.js";
 import projectImagesRouter from "./project_images.routes.js";
 import projectFeaturesRouter from "./project_features.routes.js";
 import projectChallengesRouter from "./project_challenges.routes.js";
+import validateSlug from '../../../https/middlewares/validateSlug.js';
 
 const projectRouter = Router();
 
@@ -26,12 +27,12 @@ projectRouter.get('/', projectsController.getAllCards);
 projectRouter.post('/', validateCreate, projectsController.createProject);
 
 //Get Project by slug
-projectRouter.get('/:slug', projectsController.getBySlug);
+projectRouter.get('/:slug', validateSlug, projectsController.getBySlug);
 
 //Update Project by slug
-projectRouter.patch('/:slug', validateUpdate, projectsController.updateProject);
+projectRouter.patch('/:slug', validateSlug, validateUpdate, projectsController.updateProject);
 
 //Delete Project by slug
-projectRouter.delete('/:slug', projectsController.deleteProject);
+projectRouter.delete('/:slug', validateSlug, projectsController.deleteProject);
 
 export default projectRouter;
