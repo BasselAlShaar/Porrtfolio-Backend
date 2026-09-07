@@ -1,3 +1,42 @@
+/*
+
+!Refactor everything that wants images to accept the actual file
+Todo: Create upload middleware
+Todo: Create Image optimizer
+Todo: Create Image storing function
+Todo: Create image deletion
+Todo: Create image URL/path helper
+
+!Project Images
+Todo: Refactor Types
+Todo: Refactor Routes
+Todo: Refactor Controller
+Todo: Refactor Middleware
+Todo: Refactor Service
+
+!personal Info
+Todo: Refactor Types
+Todo: Refactor Routes
+Todo: Refactor Controller
+Todo: Refactor Middleware
+Todo: Refactor Service
+
+!Resumes
+Todo: Refactor Types
+Todo: Refactor Routes
+Todo: Refactor Controller
+Todo: Refactor Middleware
+Todo: Refactor Service
+
+!Social Links
+Todo: Refactor Types
+Todo: Refactor Routes
+Todo: Refactor Controller
+Todo: Refactor Middleware
+Todo: Refactor Service
+
+*/
+
 // ================================================================
 // BACKEND INITIALIZATION
 // ================================================================
@@ -18,6 +57,9 @@ import 'dotenv/config';
 import express from 'express';
 import router from './routes/index.js';
 import sessionMiddleware from './https/middlewares/session.middleware.js';
+import cors from "cors";
+
+
 
 // Creating the application.
 // This is where the journey begins.
@@ -25,6 +67,14 @@ import sessionMiddleware from './https/middlewares/session.middleware.js';
 // Everything looks innocent right now.
 // Give it 5 minutes.
 const app = express();
+
+
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 
 // Allow the API to understand JSON.
 //

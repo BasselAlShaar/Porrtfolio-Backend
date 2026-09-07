@@ -72,6 +72,8 @@ import { strictLimit } from "../https/middlewares/rateLimiter.js";
 import authMiddleware from "../https/middlewares/auth.middleware.js";
 import requireAdmin from "../https/middlewares/requireAdmin.middleware.js";
 
+import getSession from "../https/controllers/session/session.controller.js";
+
 // ================================================================
 //    ROUTER
 // ================================================================
@@ -119,6 +121,10 @@ const authRouter = Router();
 
 // Login
 authRouter.post('/admin-login', strictLimit, authMiddleware, authController.login);
+
+
+//Check
+authRouter.get("/session", getSession)
 
 // ================================================================
 //    LOGOUT
