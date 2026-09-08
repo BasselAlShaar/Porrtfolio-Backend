@@ -1,7 +1,7 @@
 /*
 
 !Refactor everything that wants images to accept the actual file
-Todo: Create upload middleware
+//Todo: Create upload middleware
 Todo: Create Image optimizer
 Todo: Create Image storing function
 Todo: Create image deletion
@@ -15,7 +15,7 @@ Todo: Refactor Middleware
 Todo: Refactor Service
 
 !personal Info
-Todo: Refactor Types
+//Todo: Refactor Types
 Todo: Refactor Routes
 Todo: Refactor Controller
 Todo: Refactor Middleware
