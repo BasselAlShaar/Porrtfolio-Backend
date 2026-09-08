@@ -3,7 +3,7 @@ export interface PersonalInfoData {
     professional_title: string;
     short_bio?: string | null;
     bio?: string | null;
-    profile_image_url?: string | null;
+    profile_image_storage_key?: string | null;
     location?: string | null;
     email?: string | null;
     phone?: string | null;
@@ -11,4 +11,4 @@ export interface PersonalInfoData {
     availability_text?: string | null ;
 }
 
-export type UpdatePersonalInfoData = Partial<PersonalInfoData>;
+export type UpdatePersonalInfoData = Omit<Partial<PersonalInfoData>, "profile_image_storage_key">;
