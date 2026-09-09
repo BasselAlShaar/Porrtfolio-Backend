@@ -19,6 +19,9 @@ Thumbs.db
 dist/
 build/
 
+#Storage
+storage/
+
 # Logs
 logs/
 *.log

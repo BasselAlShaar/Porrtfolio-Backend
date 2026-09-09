@@ -2,79 +2,92 @@ import pool from "../../../config/database.js";
 
 import type {
     CreateProjectImagesData,
-    UpdateProjectImagesData
+    UpdateProjectImagesData,
 } from "../../../types/project/project_images.js";
 
-//admin
-//get all
-const find_all = async (id: string) => {
+// Get all project images for a project
+const find_all = async (slug: string) => {
     const result = await pool.query(
         `
             SELECT
-                id,
-                image_url,
-                alt_text,
-                caption,
-                image_type,
-                display_order
-            FROM project_images
-            WHERE project_id = $1
-        `,[id]
-    )
+                pi.id,
+                pi.project_id,
+                pi.image_storage_key,
+                pi.alt_text,
+                pi.caption,
+                pi.image_type,
+                pi.display_order
+            FROM project_images pi
+            INNER JOIN projects p
+                ON p.id = pi.project_id
+            WHERE p.slug = $1
+            ORDER BY pi.display_order ASC
+        `,
+        [slug]
+    );
 
     return result.rows;
-}
+};
 
-//const get one
+// Get a single project image
 const getById = async (id: string) => {
     const result = await pool.query(
         `
             SELECT
                 id,
-                image_url,
+                project_id,
+                image_storage_key,
                 alt_text,
                 caption,
                 image_type,
                 display_order
             FROM project_images
             WHERE id = $1
-        `,[id]
+        `,
+        [id]
     );
 
     return result.rows[0] ?? null;
-}
+};
 
-//create
-const create = async (data: CreateProjectImagesData) => {
+// Create a project image
+const create = async (
+    data: CreateProjectImagesData
+) => {
     const result = await pool.query(
         `
-        INSERT INTO project_images  (
-            project_id,
-            image_url,
-            alt_text,
-            caption,
-            image_type,
-            display_order
-        )
-        VALUES (
-            $1, $2, $3,
-            $4, $5, $6
-        )
-        Returning *
-        `,[
+            INSERT INTO project_images (
+                project_id,
+                image_storage_key,
+                alt_text,
+                caption,
+                image_type,
+                display_order
+            )
+            VALUES (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6
+            )
+            RETURNING *;
+        `,
+        [
             data.project_id,
-            data.image_url,
+            data.image_storage_key,
             data.alt_text,
             data.caption,
             data.image_type,
-            data.display_order
+            data.display_order,
         ]
-    )
+    );
 
-    return result.rows ?? null;
-}
+    return result.rows[0] ?? null;
+};
 
-//update
+// Update project image metadata
 const update = async (
     id: string,
     data: UpdateProjectImagesData
@@ -83,30 +96,32 @@ const update = async (
     const values: unknown[] = [];
 
     const updateableFields: Record<
-            keyof UpdateProjectImagesData,
-            string
-        > = {
-            image_url: "image_url",
-            alt_text: "alt_text",
-            caption: "caption",
-            image_type: "image_type",
-            display_order: "display_order",
-        };
+        keyof UpdateProjectImagesData,
+        string
+    > = {
+        alt_text: "alt_text",
+        caption: "caption",
+        image_type: "image_type",
+        display_order: "display_order",
+    };
 
-    for (const [key, column] of Object.entries(updateableFields)) {
-            const value = data[key as keyof UpdateProjectImagesData];
-    
-            if (value !== undefined) {
-                values.push(value);
-                fields.push(`${column} = $${values.length}`);
-            }
+    for (const [key, column] of Object.entries(
+        updateableFields
+    )) {
+        const value =
+            data[key as keyof UpdateProjectImagesData];
+
+        if (value !== undefined) {
+            values.push(value);
+            fields.push(`${column} = $${values.length}`);
+        }
     }
 
     if (fields.length === 0) {
         return null;
     }
 
-    fields.push(`updated_at = NOW()`);
+    fields.push("updated_at = NOW()");
 
     values.push(id);
 
@@ -123,23 +138,48 @@ const update = async (
     return result.rows[0] ?? null;
 };
 
-//delete
+// Update the stored image file information
+const updateStorageKey = async (
+    id: string,
+    storageKey: string,
+) => {
+    const result = await pool.query(
+        `
+            UPDATE project_images
+            SET
+                image_storage_key = $1,
+                updated_at = NOW()
+            WHERE id = $2
+            RETURNING *;
+        `,
+        [
+            storageKey,
+            id,
+        ]
+    );
+
+    return result.rows[0] ?? null;
+};
+
+// Delete a project image
 const remove = async (id: string) => {
     const result = await pool.query(
         `
             DELETE FROM project_images
             WHERE id = $1
-            RETURNING id
-        `,[id]
+            RETURNING id;
+        `,
+        [id]
     );
 
     return result.rows[0] ?? null;
-}
+};
 
 export default {
     find_all,
     getById,
     create,
     update,
-    delete: remove
-}
+    updateStorageKey,
+    delete: remove,
+};

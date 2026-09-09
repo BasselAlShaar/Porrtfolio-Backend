@@ -2,17 +2,18 @@
 
 !Refactor everything that wants images to accept the actual file
 //Todo: Create upload middleware
-Todo: Create Image optimizer
-Todo: Create Image storing function
-Todo: Create image deletion
-Todo: Create image URL/path helper
+//Todo: Create Image optimizer
+//Todo: Create Image storing function
+//Todo: Create image deletion
+//Todo: Create image URL/path helper
 
 !Project Images
-Todo: Refactor Types
-Todo: Refactor Routes
-Todo: Refactor Controller
-Todo: Refactor Middleware
-Todo: Refactor Service
+//Todo: Refactor Types
+//Todo: Refactor Routes
+//Todo: Refactor Controller
+//Todo: Refactor Middleware
+//Todo: Refactor Service
+//Todo: Refactor Repository
 
 !personal Info
 //Todo: Refactor Types

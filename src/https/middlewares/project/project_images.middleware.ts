@@ -1,47 +1,29 @@
 import type { Request, Response, NextFunction } from "express";
 
 const MAX_LENGTH = {
-    image_url: 2048,
     alt_text: 200,
     caption: 200,
-    image_type: 200
+    image_type: 200,
 } as const;
 
 const createAllowedFields = [
     "project_id",
-    "image_url",
     "alt_text",
     "caption",
     "image_type",
-    "display_order"
+    "display_order",
 ] as const;
 
 const updateAllowedFields = [
-    "image_url",
     "alt_text",
     "caption",
     "image_type",
-    "display_order"
+    "display_order",
 ] as const;
 
-type AllowedField = string;
-
-const isValidUrl = (value: unknown): value is string => {
-    if (typeof value !== "string" || !value.trim()) {
-        return false;
-    }
-
-    try {
-        const url = new URL(value);
-
-        return (
-            url.protocol === "http:" ||
-            url.protocol === "https:"
-        );
-    } catch {
-        return false;
-    }
-};
+type AllowedField =
+    | typeof createAllowedFields[number]
+    | typeof updateAllowedFields[number];
 
 const isValidUUID = (value: unknown): value is string => {
     if (typeof value !== "string") {
@@ -53,12 +35,27 @@ const isValidUUID = (value: unknown): value is string => {
     );
 };
 
-const isNonNegativeInteger = (value: unknown): value is number => {
-    return (
-        typeof value === "number" &&
-        Number.isInteger(value) &&
-        value >= 0
-    );
+const parseNonNegativeInteger = (
+    value: unknown
+): number | null => {
+    if (typeof value === "number") {
+        return Number.isInteger(value) && value >= 0
+            ? value
+            : null;
+    }
+
+    if (
+        typeof value === "string" &&
+        /^\d+$/.test(value)
+    ) {
+        const parsed = Number(value);
+
+        return Number.isSafeInteger(parsed)
+            ? parsed
+            : null;
+    }
+
+    return null;
 };
 
 const rejectUnknownFields = (
@@ -67,7 +64,7 @@ const rejectUnknownFields = (
     res: Response
 ): boolean => {
     const unknownFields = Object.keys(body).filter(
-        (field) => !allowedFields.includes(field)
+        (field) => !allowedFields.includes(field as AllowedField)
     );
 
     if (unknownFields.length === 0) {
@@ -132,78 +129,13 @@ const validateStringField = (
     return true;
 };
 
-const validateUrlField = (
-    value: unknown,
-    fieldName: string,
-    maxLength: number,
-    res: Response,
-    required = false,
-    nullable = true
-): boolean => {
-    if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid HTTP or HTTPS URL.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null) {
-        if (nullable) {
-            return true;
-        }
-
-        res.status(400).json({
-            message: `${fieldName} must be a valid HTTP or HTTPS URL.`,
-        });
-
-        return false;
-    }
-
-    if (!isValidUrl(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid HTTP or HTTPS URL.`,
-        });
-
-        return false;
-    }
-
-    if (value.length > maxLength) {
-        res.status(400).json({
-            message: `${fieldName} must not exceed ${maxLength} characters.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
 const validateProjectId = (
     value: unknown,
-    fieldName: string,
-    res: Response,
-    required = false
+    res: Response
 ): boolean => {
-    if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid UUID.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null || !isValidUUID(value)) {
+    if (!isValidUUID(value)) {
         res.status(400).json({
-            message: `${fieldName} must be a valid UUID.`,
+            message: "project_id must be a valid UUID.",
         });
 
         return false;
@@ -213,14 +145,17 @@ const validateProjectId = (
 };
 
 const validateDisplayOrder = (
-    value: unknown,
+    req: Request,
     res: Response,
     required = false
 ): boolean => {
+    const value = req.body.display_order;
+
     if (value === undefined) {
         if (required) {
             res.status(400).json({
-                message: "display_order must be a non-negative integer.",
+                message:
+                    "display_order must be a non-negative integer.",
             });
 
             return false;
@@ -229,73 +164,19 @@ const validateDisplayOrder = (
         return true;
     }
 
-    if (!isNonNegativeInteger(value)) {
+    const parsed = parseNonNegativeInteger(value);
+
+    if (parsed === null) {
         res.status(400).json({
-            message: "display_order must be a non-negative integer.",
+            message:
+                "display_order must be a non-negative integer.",
         });
 
         return false;
     }
 
-    return true;
-};
-
-const validateUpdateFields = (
-    body: Record<string, unknown>,
-    res: Response
-): boolean => {
-    if (
-        !validateUrlField(
-            body.image_url,
-            "image_url",
-            MAX_LENGTH.image_url,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateStringField(
-            body.alt_text,
-            "alt_text",
-            MAX_LENGTH.alt_text,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateStringField(
-            body.caption,
-            "caption",
-            MAX_LENGTH.caption,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateStringField(
-            body.image_type,
-            "image_type",
-            MAX_LENGTH.image_type,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res
-        )
-    ) {
-        return false;
-    }
+    // Normalize multipart/form-data value from string to number.
+    req.body.display_order = parsed;
 
     return true;
 };
@@ -313,7 +194,7 @@ const validateCreate = (
         body === null
     ) {
         res.status(400).json({
-            message: "Request body must be a JSON object.",
+            message: "Request body must be an object.",
         });
         return;
     }
@@ -328,27 +209,7 @@ const validateCreate = (
         return;
     }
 
-    if (
-        !validateUrlField(
-            body.image_url,
-            "image_url",
-            MAX_LENGTH.image_url,
-            res,
-            true,
-            false
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateProjectId(
-            body.project_id,
-            "project_id",
-            res,
-            true
-        )
-    ) {
+    if (!validateProjectId(body.project_id, res)) {
         return;
     }
 
@@ -387,13 +248,7 @@ const validateCreate = (
         return;
     }
 
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res,
-            true
-        )
-    ) {
+    if (!validateDisplayOrder(req, res, true)) {
         return;
     }
 
@@ -413,14 +268,12 @@ const validateUpdate = (
         body === null
     ) {
         res.status(400).json({
-            message: "Request body must be a JSON object.",
+            message: "Request body must be an object.",
         });
         return;
     }
 
-    const providedFields = Object.keys(body);
-
-    if (providedFields.length === 0) {
+    if (Object.keys(body).length === 0) {
         res.status(400).json({
             message: "At least one field is required.",
         });
@@ -437,7 +290,40 @@ const validateUpdate = (
         return;
     }
 
-    if (!validateUpdateFields(body, res)) {
+    if (
+        !validateStringField(
+            body.alt_text,
+            "alt_text",
+            MAX_LENGTH.alt_text,
+            res
+        )
+    ) {
+        return;
+    }
+
+    if (
+        !validateStringField(
+            body.caption,
+            "caption",
+            MAX_LENGTH.caption,
+            res
+        )
+    ) {
+        return;
+    }
+
+    if (
+        !validateStringField(
+            body.image_type,
+            "image_type",
+            MAX_LENGTH.image_type,
+            res
+        )
+    ) {
+        return;
+    }
+
+    if (!validateDisplayOrder(req, res)) {
         return;
     }
 
