@@ -1,5 +1,8 @@
 import social_linksRepository from "../../repositories/personal_info/social_links.repository.js";
-import { getFilePath } from "../file_storage.js";
+import { saveFile, deleteFile, getFilePath } from "../file_storage.js";
+import optimizeImage from "../image_optimizer.js";
+
+import { randomUUID } from "node:crypto";
 
 import type { 
     CreateSocialLinksData,
@@ -37,6 +40,50 @@ const updateSocialLink = async (
     return social_linksRepository.update(id, data);
 }
 
+//update icon
+const updateIcon = async (
+    id: string,
+    file: Express.Multer.File
+) => {
+    const old_icon =
+        await social_linksRepository.getIconStorageKey(id);
+
+    if (!old_icon) {
+        return null;
+    }
+
+    const optimized = await optimizeImage(file.buffer);
+
+    const filename = `${randomUUID()}.webp`;
+
+    const storageKey = await saveFile(
+        optimized.buffer,
+        `personal_info/social_links`,
+        filename
+    );
+
+    try {
+        const result =
+            await social_linksRepository.updateStorageKey(
+                storageKey,
+                id
+            );
+
+        if (!result) {
+            await deleteFile(storageKey);
+            return null;
+        }
+
+        await deleteFile(old_icon);
+
+        return result;
+    } catch (error) {
+        await deleteFile(storageKey);
+
+        throw error;
+    }
+};
+
 //delete
 const deleteSocialLink = async (id: string) => {
 
@@ -65,5 +112,6 @@ export default {
     getSocialLinkById,
     createSocialLink,
     updateSocialLink,
+    updateIcon,
     deleteSocialLink
 }

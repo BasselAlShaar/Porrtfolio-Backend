@@ -17,6 +17,6 @@ personalInfoRouter.get('/', personal_infoController.getPersonalInfo);
 personalInfoRouter.patch('/', validateUpdate, personal_infoController.updatePersonalInfo);
 
 //Update Personal Info Image
-personalInfoRouter.put('/',validateImage, personal_infoController.updatePersonalInfoProfileImage)
+personalInfoRouter.put('/', validateImage, personal_infoController.updatePersonalInfoProfileImage)
 
 export default personalInfoRouter;

@@ -92,6 +92,23 @@ const updateSocialLink = async (
     }
 }
 
+//update icon
+const updateIcon = async (
+    req: Request<{id: string}>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const result = await socialLinksService.updateIcon(req.params.id, req.file!);
+
+        res.status(200).json({
+            message: "Updated Icon!"
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
 //delete
 const deleteSocialLink = async (
     req: Request<{ id: string }>,
@@ -113,5 +130,6 @@ export default {
     getSocialLinkById,
     createSocialLink,
     updateSocialLink,
+    updateIcon,
     deleteSocialLink
 }

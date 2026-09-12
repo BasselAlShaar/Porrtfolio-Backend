@@ -141,6 +141,26 @@ const update = async (
     return result.rows[0] ?? null;
 };
 
+//update icon
+const updateStorageKey = async (storage_key:string, id: string) => {
+    const result = await pool.query(
+        `
+            Update social_links
+            SET
+                icon = $1
+                updated_at = NOW()
+            WHERE id = $2
+            Returning *
+        `,
+        [
+            storage_key,
+            id
+        ]
+    )
+
+    return result.rows[0].icon ?? null;
+} 
+
 //delete
 const remove = async (id: string) => {
     const result = await pool.query(
@@ -161,5 +181,6 @@ export default {
     getIconStorageKey,
     create,
     update,
+    updateStorageKey,
     delete: remove
 };

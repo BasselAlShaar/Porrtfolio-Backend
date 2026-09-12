@@ -6,13 +6,15 @@ import {
     validateCreate,
     validateUpdate
 } from "../../../https/middlewares/personal_info/social_links.middleware.js";
+import validateImage from "../../../https/middlewares/imageValidator.middleware.js";
 
 const socialLinksRouter = Router();
 
 socialLinksRouter.get('/', socialLinksController.getAllSocialLinks);
 socialLinksRouter.get('/:id', validateUUID,socialLinksController.getSocialLinkById);
-socialLinksRouter.get('/:id/file', socialLinksController.getIcon)
+socialLinksRouter.get('/:id/file', socialLinksController.getIcon);
 socialLinksRouter.post('/', validateCreate, socialLinksController.createSocialLink);
+socialLinksRouter.put('/:id', validateImage, socialLinksController.updateIcon);
 socialLinksRouter.patch('/:id', validateUUID, validateUpdate, socialLinksController.updateSocialLink);
 socialLinksRouter.delete('/:id', validateUUID, socialLinksController.deleteSocialLink);
 

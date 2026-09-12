@@ -17,10 +17,10 @@
 
 !personal Info
 //Todo: Refactor Types
-Todo: Refactor Routes
-Todo: Refactor Controller
-Todo: Refactor Middleware
-Todo: Refactor Service
+//Todo: Refactor Routes
+//Todo: Refactor Controller
+//Todo: Refactor Middleware
+//Todo: Refactor Service
 
 !Resumes
 Todo: Refactor Types
@@ -29,12 +29,12 @@ Todo: Refactor Controller
 Todo: Refactor Middleware
 Todo: Refactor Service
 
-!Social Links
-Todo: Refactor Types
-Todo: Refactor Routes
-Todo: Refactor Controller
-Todo: Refactor Middleware
-Todo: Refactor Service
+//!Social Links
+//Todo: Refactor Types
+//Todo: Refactor Routes
+//Todo: Refactor Controller
+//Todo: Refactor Middleware
+//Todo: Refactor Service
 
 */
 

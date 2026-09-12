@@ -4,7 +4,6 @@ const MAX_LENGTH = {
     platform: 200,
     label: 200,
     url: 2048,
-    icon: 500,
     is_visible: 200,
 } as const;
 
@@ -12,7 +11,6 @@ const createAllowedFields = [
     "platform",
     "label",
     "url",
-    "icon",
     "display_order",
     "is_visible",
 ] as const;
@@ -21,7 +19,6 @@ const updateAllowedFields = [
     "platform",
     "label",
     "url",
-    "icon",
     "display_order",
     "is_visible",
 ] as const;
@@ -256,17 +253,6 @@ const validateCommonFields = (
     }
 
     if (
-        !validateStringField(
-            body.icon,
-            "icon",
-            MAX_LENGTH.icon,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
         !validateBooleanField(
             body.is_visible,
             "is_visible",
@@ -347,17 +333,6 @@ const validateCreate = (
             "url",
             res,
             true
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateStringField(
-            body.icon,
-            "icon",
-            MAX_LENGTH.icon,
-            res
         )
     ) {
         return;

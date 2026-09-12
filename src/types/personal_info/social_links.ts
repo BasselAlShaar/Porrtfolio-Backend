@@ -10,6 +10,6 @@ export interface SocialLinksData {
     is_visible: boolean;
 }
 
-export type CreateSocialLinksData = SocialLinksData;
+export type CreateSocialLinksData = Omit<SocialLinksData, "id">;
 
 export type UpdateSocialLinksData = Omit<Partial<SocialLinksData>, "id">;
