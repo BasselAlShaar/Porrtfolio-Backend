@@ -4,17 +4,52 @@ import type {
     UpdatePersonalInfoData,
 } from "../../../types/personal_info/personal_info.js";
 
-//get
-const get = async () => {
+//get Public
+const getPublic = async () => {
     const result = await pool.query(
         `
         SELECT
-            p.id,
             p.full_name,
             p.professional_title,
             p.short_bio,
             p.bio,
-            p.profile_image_url,
+            p.location,
+            p.email,
+            p.phone,
+            p.availability_status,
+            p.availability_text,        
+        COALESCE(
+            (
+                SELECT json_agg(
+                    json_build_object(
+                        'id', s.id,
+                        'platform', s.platform,
+                        'label', s.label,
+                    )
+                    ORDER BY s.display_order
+                )
+                FROM social_links s
+                WHERE s.personal_info_id = p.id
+                AND s.is_visible = true
+            ),
+            '[]'::json
+        ) AS links
+        FROM personal_info p
+        `
+    );
+
+    return result.rows[0] ?? null;
+};
+
+//get admin
+const get = async () => {
+    const result = await pool.query(
+        `
+        SELECT
+            p.full_name,
+            p.professional_title,
+            p.short_bio,
+            p.bio,
             p.location,
             p.email,
             p.phone,
@@ -28,7 +63,6 @@ const get = async () => {
                         'platform', s.platform,
                         'label', s.label,
                         'url', s.url,
-                        'icon', s.icon,
                         'display_order', s.display_order,
                         'is_visible', s.is_visible
                     )
@@ -38,7 +72,7 @@ const get = async () => {
                 WHERE s.personal_info_id = p.id
             ),
             '[]'::json
-        ) AS social_links
+        ) AS links
         FROM personal_info p
         `
     );
@@ -61,7 +95,6 @@ const update = async (
             professional_title: "professional_title",
             short_bio: "short_bio",
             bio: "bio",
-            profile_image_url: "profile_image_url",
             location: "location",
             email: "email",
             phone: "phone",
@@ -96,7 +129,40 @@ const update = async (
     return result.rows[0] ?? null;
 };
 
+// Update the stored image file information
+const updateStorageKey = async (
+    storageKey: string,
+) => {
+    const result = await pool.query(
+        `
+            UPDATE personal_info
+            SET
+                profile_image_url = $1,
+                updated_at = NOW()
+            RETURNING *;
+        `,
+        [storageKey]
+    );
+
+    return result.rows[0] ?? null;
+};
+
+const getImageStorageKey = async () => {
+    const result = await pool.query(
+        `
+            SELECT
+                profile_image_url
+            FROM personal_info
+        `
+    )
+
+    return result.rows[0].personal_info ?? null;
+}
+
 export default {
+    getPublic,
     get,
-    update
+    update,
+    updateStorageKey,
+    getImageStorageKey
 };

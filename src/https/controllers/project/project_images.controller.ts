@@ -141,7 +141,9 @@ const updateProjectImage = async (
             return;
         }
 
-        res.status(200).json(projectImage);
+        res.status(200).json({
+            message: "Updated Image!"
+        });
     } catch (error) {
         res.status(500).json({
             error: (error as Error).message,

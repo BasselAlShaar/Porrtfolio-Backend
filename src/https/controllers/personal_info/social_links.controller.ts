@@ -1,3 +1,4 @@
+import { getFilePath } from "../../services/file_storage.js";
 import socialLinksService from "../../services/personal_info/social_links.service.js";
 
 import type { Request, Response, NextFunction } from "express";
@@ -31,6 +32,29 @@ const getSocialLinkById = async (
         }
 
         res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+//get Image
+const getIcon = async (
+    req: Request<{id: string}>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const iconStorageKey = await socialLinksService.getIcon(req.params.id);
+
+        if (!iconStorageKey) {
+            res.status(404).json({
+                message: "Icon not found",
+            });
+    
+            return;
+        }
+
+        res.sendFile(iconStorageKey);
     } catch (error) {
         next(error);
     }
@@ -84,6 +108,7 @@ const deleteSocialLink = async (
 }
 
 export default {
+    getIcon,
     getAllSocialLinks,
     getSocialLinkById,
     createSocialLink,

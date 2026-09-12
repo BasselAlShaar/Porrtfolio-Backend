@@ -5,7 +5,6 @@ const MAX_LENGTH = {
     professional_title: 200,
     short_bio: 1000,
     bio: 5000,
-    profile_image_url: 2048,
     location: 200,
     email: 320,
     phone: 50,
@@ -18,7 +17,6 @@ const updateAllowedFields = [
     "professional_title",
     "short_bio",
     "bio",
-    "profile_image_url",
     "location",
     "email",
     "phone",
@@ -27,23 +25,6 @@ const updateAllowedFields = [
 ] as const;
 
 type AllowedField = string;
-
-const isValidUrl = (value: unknown): value is string => {
-    if (typeof value !== "string" || !value.trim()) {
-        return false;
-    }
-
-    try {
-        const url = new URL(value);
-
-        return (
-            url.protocol === "http:" ||
-            url.protocol === "https:"
-        );
-    } catch {
-        return false;
-    }
-};
 
 const isValidEmail = (value: unknown): value is string => {
     if (typeof value !== "string" || !value.trim()) {
@@ -99,35 +80,6 @@ const validateStringField = (
     if (typeof value !== "string" || !value.trim()) {
         res.status(400).json({
             message: `${fieldName} must be a non-empty string.`,
-        });
-
-        return false;
-    }
-
-    if (value.length > maxLength) {
-        res.status(400).json({
-            message: `${fieldName} must not exceed ${maxLength} characters.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
-const validateUrlField = (
-    value: unknown,
-    fieldName: string,
-    maxLength: number,
-    res: Response
-): boolean => {
-    if (value === undefined || value === null) {
-        return true;
-    }
-
-    if (!isValidUrl(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid HTTP or HTTPS URL.`,
         });
 
         return false;
@@ -250,17 +202,6 @@ const validateUpdate = (
             body.bio,
             "bio",
             MAX_LENGTH.bio,
-            res
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateUrlField(
-            body.profile_image_url,
-            "profile_image_url",
-            MAX_LENGTH.profile_image_url,
             res
         )
     ) {

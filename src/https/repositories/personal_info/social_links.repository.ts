@@ -45,8 +45,22 @@ export const getById = async (id: string) => {
     return result.rows[0] ?? null;
 };
 
+//get icon storage key
+const getIconStorageKey = async (id: string) => {
+    const result = await pool.query(
+        `
+            Select
+                icon
+            From social_links
+            WHERE id = $1
+        `,[id]
+    )
+
+    return result.rows[0].icon ?? null;
+}
+
 //create
-export const create = async (data: CreateSocialLinksData) => {
+const create = async (data: CreateSocialLinksData) => {
 
     const result = await pool.query(
         `
@@ -144,6 +158,7 @@ const remove = async (id: string) => {
 export default {
     find_all,
     getById,
+    getIconStorageKey,
     create,
     update,
     delete: remove

@@ -1,4 +1,5 @@
 import social_linksRepository from "../../repositories/personal_info/social_links.repository.js";
+import { getFilePath } from "../file_storage.js";
 
 import type { 
     CreateSocialLinksData,
@@ -48,7 +49,18 @@ const deleteSocialLink = async (id: string) => {
     return social_linksRepository.delete(id);
 }
 
+const getIcon = async (id: string) => {
+    const imageStorageKey = await social_linksRepository.getIconStorageKey(id);
+
+    if (!imageStorageKey) {
+        return null;
+    }
+
+    return getFilePath(imageStorageKey);
+};
+
 export default {
+    getIcon,
     getAllSocialLinks,
     getSocialLinkById,
     createSocialLink,

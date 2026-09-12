@@ -1,4 +1,7 @@
+import type { UUID } from "node:crypto";
+
 export interface SocialLinksData {
+    id: UUID;
     platform: string;
     label?: string | null;
     url: string;
@@ -9,4 +12,4 @@ export interface SocialLinksData {
 
 export type CreateSocialLinksData = SocialLinksData;
 
-export type UpdateSocialLinksData = Partial<SocialLinksData>;
+export type UpdateSocialLinksData = Omit<Partial<SocialLinksData>, "id">;

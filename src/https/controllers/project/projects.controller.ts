@@ -64,9 +64,11 @@ const createProject = async (
     res: Response
 ) => {
     try {
-        const project = await projectsService.createProject(req.body);
+        const project = await projectsService.createProject(req.body, req.file!);
 
-        res.json(project);
+        res.json({
+            message: "Created Successfully!"
+        });
     } catch (error) {
         res.status(500).json({error: (error as Error).message})
     }
