@@ -15,10 +15,10 @@ import validateSlug from '../../../https/middlewares/validateSlug.js';
 
 const projectRouter = Router();
 
-projectRouter.use("/links", projectLinksRouter)
-projectRouter.use("/images", projectImagesRouter)
-projectRouter.use("/features", projectFeaturesRouter)
-projectRouter.use("/challenges", projectChallengesRouter)
+projectRouter.use("/:slug/links", projectLinksRouter)
+projectRouter.use("/:slug/images", projectImagesRouter)
+projectRouter.use("/:slug/features", projectFeaturesRouter)
+projectRouter.use("/:slug/challenges", projectChallengesRouter)
 
 //Get All Projects
 projectRouter.get('/', projectsController.getAllCards);

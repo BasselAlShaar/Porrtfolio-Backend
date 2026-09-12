@@ -1,4 +1,5 @@
 import project_featuresRepository from "../../repositories/project/project_features.repository.js";
+import projectRepository from "../../repositories/project/project.repository.js";
 
 import type {
     CreateProjectFeaturesData,
@@ -6,8 +7,8 @@ import type {
 } from "../../../types/project/project_features.js";
 
 //get all
-const getAllProjectFeatures = async (id: string) => {
-    return project_featuresRepository.find_all(id);
+const getAllProjectFeatures = async (slug: string) => {
+    return project_featuresRepository.find_all(slug);
 }
 
 //get one
@@ -17,9 +18,13 @@ const getProjectFeatureById = async (id: string) => {
 
 //create
 const createProjectFeature = async (
+    slug: string,
     data: CreateProjectFeaturesData
 ) => {
-    return project_featuresRepository.create(data);
+
+    const project_id = await projectRepository.getProjectId(slug);
+
+    return project_featuresRepository.create(project_id, data);
 };
 
 const updateProjectFeature = async (

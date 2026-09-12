@@ -1,4 +1,5 @@
 import project_ChallengesRepository from "../../repositories/project/project_challenges.repository.js";
+import projectRepository from "../../repositories/project/project.repository.js";
 
 import type {
     CreateProjectChallengesData,
@@ -6,8 +7,8 @@ import type {
 } from "../../../types/project/project_challenges.js";
 
 //get all
-const getAllProjectChallenges = async (id: string) => {
-    return project_ChallengesRepository.find_all(id);
+const getAllProjectChallenges = async (slug: string) => {
+    return project_ChallengesRepository.find_all(slug);
 }
 
 //get one
@@ -17,9 +18,13 @@ const getProjectChallengeById = async (id: string) => {
 
 //create
 const createProjectChallenge = async (
+    slug: string,
     data: CreateProjectChallengesData
 ) => {
-    return project_ChallengesRepository.create(data);
+
+    const project_id = await projectRepository.getProjectId(slug);
+
+    return project_ChallengesRepository.create(project_id, data);
 };
 
 const updateProjectChallenge = async (

@@ -7,6 +7,17 @@ if (!MEDIA_ROOT) {
     throw new Error("MEDIA_ROOT environment variable is not defined");
 }
 
+const deleteFolder = async (
+    folder: string
+): Promise<void> => {
+    const directory = path.join(MEDIA_ROOT, folder);
+
+    await fs.rm(directory, {
+        recursive: true,
+        force: true,
+    });
+};
+
 const saveFile = async (
     buffer: Buffer,
     folder: string,
@@ -43,4 +54,5 @@ export {
     saveFile,
     deleteFile,
     getFilePath,
+    deleteFolder
 };

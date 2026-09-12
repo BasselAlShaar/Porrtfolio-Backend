@@ -11,6 +11,7 @@ export type ProjectStatus = "archived" | "in_progress" | "completed";
 export type ProjectType = "personal" | "academic" | "professional" | "freelance" | "open_source" | "game"| "other" | null;
 
 export interface ProjectData {
+    id: string;
     title: string;
     slug: string;
     short_description: string;
@@ -35,4 +36,4 @@ export interface CreateProjectData extends ProjectData {
     challenges?: CreateProjectChallengesData[];
 }
 
-export type UpdateProjectData = Partial<ProjectData>;
+export type UpdateProjectData = Omit<Partial<ProjectData>, "id">;

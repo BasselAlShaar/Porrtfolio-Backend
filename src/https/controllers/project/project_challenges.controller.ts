@@ -18,7 +18,7 @@ const getAllProjectChallenges = async (
 
 //get one
 const getById = async (
-    req: Request<{id: string}>,
+    req: Request<{slug:string, id: string}>,
     res: Response
 ) => {
     try {
@@ -32,11 +32,11 @@ const getById = async (
 
 //create
 const createProjectChallenge = async (
-    req: Request,
+    req: Request<{slug: string}>,
     res: Response
 ) => {
     try {
-        const project = await project_ChallengesService.createProjectChallenge(req.body);
+        const project = await project_ChallengesService.createProjectChallenge(req.params.slug, req.body);
 
         res.json(project);
     } catch (error) {
@@ -46,11 +46,11 @@ const createProjectChallenge = async (
 
 //update
 const updateProjectChallenge = async (
-    req: Request<{id: string}>,
+    req: Request<{slug: string, id: string}>,
     res: Response
 ) => {
     try {
-        const project = await project_ChallengesService.updateProjectChallenge(req.params.id,req.body);
+        const project = await project_ChallengesService.updateProjectChallenge(req.params.id, req.body);
         
         if(!project) {
             res.status(404).json({
@@ -67,7 +67,7 @@ const updateProjectChallenge = async (
 
 //delete
 const deleteProjectChallenge = async (
-    req: Request<{id: string}>,
+    req: Request<{slug: string, id: string}>,
     res: Response
 ) => {
     try {

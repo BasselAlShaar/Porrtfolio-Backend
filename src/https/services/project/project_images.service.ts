@@ -4,6 +4,7 @@ import optimizeImage from "../image_optimizer.js";
 import { deleteFile, saveFile, getFilePath } from "../file_storage.js";
 
 import project_imagesRepository from "../../repositories/project/project_images.repository.js";
+import projectRepository from "../../repositories/project/project.repository.js";
 
 import type {
     CreateProjectImagesData,
@@ -16,7 +17,6 @@ const getAllProjectImages = async (slug: string) => {
 
     return images.map((image) => ({
         id: image.id,
-        project_id: image.project_id,
         alt_text: image.alt_text,
         caption: image.caption,
         image_type: image.image_type,
@@ -36,7 +36,6 @@ const getProjectImageById = async (id: string) => {
 
     return {
         id: image.id,
-        project_id: image.project_id,
         alt_text: image.alt_text,
         caption: image.caption,
         image_type: image.image_type,
@@ -60,23 +59,27 @@ const getProjectImageFile = async (id: string) => {
 
 // Create project image
 const createProjectImage = async (
+    slug: string,
     file: Express.Multer.File,
     data: CreateProjectImagesData
 ) => {
+
+    const project_id = await projectRepository.getProjectId(slug);
+
     const optimized = await optimizeImage(file.buffer);
 
     const filename = `${randomUUID()}.webp`;
 
     const storageKey = await saveFile(
         optimized.buffer,
-        `projects/${data.project_id}`,
+        `projects/${project_id}`,
         filename
     );
 
     try {
         data.image_storage_key = storageKey;
 
-        return await project_imagesRepository.create(data);
+        return await project_imagesRepository.create(project_id, data);
     } catch (error) {
         await deleteFile(storageKey);
 
@@ -101,6 +104,7 @@ const updateProjectImageData = async (
 
 // Replace project image
 const updateProjectImage = async (
+    slug: string,
     id: string,
     file: Express.Multer.File
 ) => {
@@ -111,13 +115,15 @@ const updateProjectImage = async (
         return null;
     }
 
+    const project_id = await projectRepository.getProjectId(slug);
+
     const optimized = await optimizeImage(file.buffer);
 
     const filename = `${randomUUID()}.webp`;
 
     const storageKey = await saveFile(
         optimized.buffer,
-        `projects/${existingProjectImage.project_id}`,
+        `projects/${project_id}`,
         filename
     );
 

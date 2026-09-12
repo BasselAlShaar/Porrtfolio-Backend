@@ -1,4 +1,5 @@
 import project_linksRepository from "../../repositories/project/project_links.repository.js";
+import projectRepository from "../../repositories/project/project.repository.js";
 
 import type {
     CreateProjectLinksData,
@@ -6,8 +7,8 @@ import type {
 } from "../../../types/project/project_links.js";
 
 //get all
-const getAllProjectLinks = async (id: string) => {
-    return project_linksRepository.find_all(id);
+const getAllProjectLinks = async (slug: string) => {
+    return project_linksRepository.find_all(slug);
 }
 
 //get one
@@ -17,9 +18,13 @@ const getProjectLinkById = async (id: string) => {
 
 //create
 const createProjectLink = async (
+    slug: string,
     data: CreateProjectLinksData
 ) => {
-    return project_linksRepository.create(data);
+
+    const project_id = await projectRepository.getProjectId(slug);
+
+    return project_linksRepository.create(project_id, data);
 };
 
 const updateProjectLink = async (

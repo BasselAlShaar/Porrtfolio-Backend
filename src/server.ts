@@ -36,6 +36,8 @@ Todo: Refactor Controller
 Todo: Refactor Middleware
 Todo: Refactor Service
 
+!Projects: complete deleteeeee
+
 */
 
 // ================================================================

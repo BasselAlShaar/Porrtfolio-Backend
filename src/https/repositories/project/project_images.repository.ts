@@ -52,6 +52,7 @@ const getById = async (id: string) => {
 
 // Create a project image
 const create = async (
+    project_id: string,
     data: CreateProjectImagesData
 ) => {
     const result = await pool.query(
@@ -75,7 +76,7 @@ const create = async (
             RETURNING *;
         `,
         [
-            data.project_id,
+            project_id,
             data.image_storage_key,
             data.alt_text,
             data.caption,

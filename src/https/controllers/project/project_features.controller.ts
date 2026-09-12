@@ -18,7 +18,7 @@ const getAllProjectFeatures = async (
 
 //get one
 const getById = async (
-    req: Request<{id: string}>,
+    req: Request<{slug: string, id: string}>,
     res: Response
 ) => {
     try {
@@ -32,11 +32,11 @@ const getById = async (
 
 //create
 const createProjectFeature = async (
-    req: Request,
+req: Request<{slug: string}>,
     res: Response
 ) => {
     try {
-        const project = await project_featuresService.createProjectFeature(req.body);
+        const project = await project_featuresService.createProjectFeature(req.params.slug, req.body);
 
         res.json(project);
     } catch (error) {
@@ -46,11 +46,11 @@ const createProjectFeature = async (
 
 //update
 const updateProjectFeature = async (
-    req: Request<{id: string}>,
+    req: Request<{slug: string, id: string}>,
     res: Response
 ) => {
     try {
-        const project = await project_featuresService.updateProjectFeature(req.params.id,req.body);
+        const project = await project_featuresService.updateProjectFeature(req.params.id, req.body);
         
         if(!project) {
             res.status(404).json({
@@ -67,7 +67,7 @@ const updateProjectFeature = async (
 
 //delete
 const deleteProjectFeature = async (
-    req: Request<{id: string}>,
+    req: Request<{slug: string, id: string}>,
     res: Response
 ) => {
     try {

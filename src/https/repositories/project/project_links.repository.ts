@@ -43,7 +43,7 @@ const getById = async (id: string) => {
 }
 
 //create
-const create = async (data: CreateProjectLinksData) => {
+const create = async (project_id: string, data: CreateProjectLinksData) => {
     const result = await pool.query(
         `
         INSERT INTO project_links  (
@@ -59,7 +59,7 @@ const create = async (data: CreateProjectLinksData) => {
         )
         Returning *
         `,[
-            data.project_id,
+            project_id,
             data.link_type,
             data.label,
             data.url,

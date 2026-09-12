@@ -5,6 +5,21 @@ import type {
     UpdateProjectData
 } from "../../../types/project/project.js";
 
+//extra
+const getProjectId = async (slug: string) => {
+    const result = await pool.query(
+        `
+        Select
+            id
+        FROM projects
+        WHERE slug = $1
+        `,[slug]
+    );
+
+    return result.rows[0]?.id ?? null;
+}
+
+
 //public
 //get all
 const find_all_public_card = async () => {
@@ -22,7 +37,6 @@ const find_all_public_card = async () => {
                     SELECT json_agg(
                         json_build_object(
                             'id', i.id,
-                            'image_url', i.image_url,
                             'alt_text', i.alt_text,
                             'caption', i.caption,
                             'image_type', i.image_type
@@ -119,7 +133,6 @@ const get_one_public = async (slug: string) => {
                     SELECT json_agg(
                         json_build_object(
                             'id', i.id,
-                            'image_url', i.image_url,
                             'alt_text', i.alt_text,
                             'caption', i.caption,
                             'image_type', i.image_type
@@ -191,7 +204,6 @@ const find_all_card = async () => {
                     SELECT json_agg(
                         json_build_object(
                             'id', i.id,
-                            'image_url', i.image_url,
                             'alt_text', i.alt_text,
                             'caption', i.caption,
                             'image_type', i.image_type
@@ -291,7 +303,6 @@ const getBySlug = async (slug: string) => {
                     SELECT json_agg(
                         json_build_object(
                             'id', i.id,
-                            'image_url', i.image_url,
                             'alt_text', i.alt_text,
                             'caption', i.caption,
                             'image_type', i.image_type,
@@ -358,6 +369,7 @@ const create = async (data: CreateProjectData) => {
 
         const projectResult = await client.query(`
             INSERT INTO projects (
+                id,
                 title,
                 slug,
                 short_description,
@@ -376,10 +388,11 @@ const create = async (data: CreateProjectData) => {
                 $1, $2, $3, $4,
                 $5, $6, $7, $8,
                 $9, $10, $11, $12,
-                $13
+                $13, $14
             )
             RETURNING *;
         `, [
+            data.id,
             data.title,
             data.slug,
             data.short_description,
@@ -455,7 +468,7 @@ const create = async (data: CreateProjectData) => {
             await client.query(`
                 INSERT INTO project_images (
                     project_id,
-                    image_url,
+                    image_storage_key,
                     alt_text,
                     caption,
                     image_type,
@@ -463,14 +476,12 @@ const create = async (data: CreateProjectData) => {
                 )
                 SELECT
                     $1,
-                    image_url,
                     alt_text,
                     caption,
                     image_type,
                     display_order
                 FROM jsonb_to_recordset($2::jsonb)
                 AS images(
-                    image_url text,
                     alt_text text,
                     caption text,
                     image_type text,
@@ -619,6 +630,7 @@ const remove = async (slug: string) => {
 }
 
 export default {
+    getProjectId,
     find_all_public_card,
     get_one_public,
     find_all_card,

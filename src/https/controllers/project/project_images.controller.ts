@@ -23,7 +23,7 @@ const getAllProjectImages = async (
 
 // Get one
 const getById = async (
-    req: Request<{ id: string }>,
+    req: Request<{ slug: string, id: string }>,
     res: Response
 ) => {
     try {
@@ -48,7 +48,7 @@ const getById = async (
 };
 
 const getProjectImageFile = async (
-    req: Request<{ id: string }>,
+    req: Request<{ slug: string, id: string }>,
     res: Response
 ) => {
     try {
@@ -75,12 +75,13 @@ const getProjectImageFile = async (
 
 // Create
 const createProjectImage = async (
-    req: Request,
+    req: Request<{ slug: string }>,
     res: Response
 ) => {
     try {
         const projectImage =
             await project_imagesService.createProjectImage(
+                req.params.slug,
                 req.file!,
                 req.body
             );
@@ -95,7 +96,7 @@ const createProjectImage = async (
 
 // Update metadata
 const updateProjectImageData = async (
-    req: Request<{ id: string }>,
+    req: Request<{ slug: string, id: string }>,
     res: Response
 ) => {
     try {
@@ -122,12 +123,13 @@ const updateProjectImageData = async (
 
 // Replace image
 const updateProjectImage = async (
-    req: Request<{ id: string }>,
+    req: Request<{ slug: string, id: string }>,
     res: Response
 ) => {
     try {
         const projectImage =
             await project_imagesService.updateProjectImage(
+                req.params.slug,
                 req.params.id,
                 req.file!
             );
@@ -149,7 +151,7 @@ const updateProjectImage = async (
 
 // Delete
 const deleteProjectImage = async (
-    req: Request<{ id: string }>,
+    req: Request<{ slug: string, id: string }>,
     res: Response
 ) => {
     try {

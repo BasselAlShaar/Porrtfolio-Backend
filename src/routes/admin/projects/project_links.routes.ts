@@ -8,9 +8,9 @@ import {
     validateUpdate
 } from "../../../https/middlewares/project/project_links.middleware.js"
 
-const projectLinksRouter = Router();
+const projectLinksRouter = Router({ mergeParams: true });
 
-projectLinksRouter.get("/all/:id", validateUUID, project_linksController.getAllProjectLinks);
+projectLinksRouter.get("/", validateUUID, project_linksController.getAllProjectLinks);
 projectLinksRouter.get("/:id", validateUUID, project_linksController.getById);
 projectLinksRouter.post("/", validateCreate, project_linksController.createProjectLink);
 projectLinksRouter.patch("/:id", validateUUID, validateUpdate, project_linksController.updateProjectLink);

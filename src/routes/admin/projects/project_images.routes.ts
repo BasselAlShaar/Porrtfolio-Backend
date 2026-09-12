@@ -9,9 +9,9 @@ import {
 } from "../../../https/middlewares/project/project_images.middleware.js"
 import validateImage from "../../../https/middlewares/imageValidator.middleware.js";
 
-const projectImagesRouter = Router();
+const projectImagesRouter = Router({ mergeParams: true });
 
-projectImagesRouter.get("/all/:id", validateUUID, project_ImagesController.getAllProjectImages);
+projectImagesRouter.get("/", validateUUID, project_ImagesController.getAllProjectImages);
 projectImagesRouter.get("/:id/file", validateUUID, project_ImagesController.getProjectImageFile);
 projectImagesRouter.get("/:id", validateUUID, project_ImagesController.getById);
 projectImagesRouter.post("/", validateCreate, validateImage, project_ImagesController.createProjectImage);

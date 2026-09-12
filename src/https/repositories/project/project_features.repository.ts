@@ -41,7 +41,10 @@ const getById = async (id: string) => {
 }
 
 //create
-const create = async (data: CreateProjectFeaturesData) => {
+const create = async (
+    project_id: string,
+    data: CreateProjectFeaturesData
+) => {
     const result = await pool.query(
         `
         INSERT INTO project_features  (
@@ -55,7 +58,7 @@ const create = async (data: CreateProjectFeaturesData) => {
         )
         Returning *
         `,[
-            data.project_id,
+            project_id,
             data.title,
             data.description,
             data.display_order

@@ -8,9 +8,9 @@ import {
     validateUpdate
 } from "../../../https/middlewares/project/project_challenges.middleware.js"
 
-const projectChallengesRouter = Router();
+const projectChallengesRouter = Router({ mergeParams: true });
 
-projectChallengesRouter.get("/all/:id", validateUUID, project_ChallengesController.getAllProjectChallenges);
+projectChallengesRouter.get("/", validateUUID, project_ChallengesController.getAllProjectChallenges);
 projectChallengesRouter.get("/:id", validateUUID, project_ChallengesController.getById);
 projectChallengesRouter.post("/", validateCreate, project_ChallengesController.createProjectChallenge);
 projectChallengesRouter.patch("/:id", validateUUID, validateUpdate, project_ChallengesController.updateProjectChallenge);
