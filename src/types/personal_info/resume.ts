@@ -1,6 +1,6 @@
 export interface ResumesData {
     title: string;
-    file_url: string;
+    file_storage_key: string;
     file_name?: string | null;
     version?: string | null;
     is_active: boolean;
@@ -9,4 +9,4 @@ export interface ResumesData {
 
 export type CreateResumeData = ResumesData;
 
-export type UpdateResumeData = Partial<ResumesData>;
+export type UpdateResumeData = Omit<Partial<ResumesData>, "file_storage_key">;

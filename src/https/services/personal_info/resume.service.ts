@@ -1,64 +1,106 @@
+import { randomUUID } from "node:crypto";
+
+import { deleteFile, saveFile, getFilePath } from "../file_storage.js";
+
 import resumeRepository from "../../repositories/personal_info/resume.repository.js";
 
 import type {
     CreateResumeData,
-    UpdateResumeData
+    UpdateResumeData,
 } from "../../../types/personal_info/resume.js";
-import pool from "../../../config/database.js";
 
 // Get public resume
 const getPublicResume = async () => {
-    return await resumeRepository.getPublicResume();
+    return resumeRepository.getPublicResume();
 };
 
-// Admin
-// Get all
-const find_all = async () => {
-    return await resumeRepository.find_all();
-};
-
-// Get one
-const getById = async (id: string) => {
-    return await resumeRepository.getById(id);
-};
-
-// Create
-const create = async (data: CreateResumeData) => {
-
+// Get all resumes
+const getAllResumes = async () => {
     const resumes = await resumeRepository.find_all();
 
-    // First resume must always be active
+    return resumes.map((resume) => ({
+        ...resume,
+        url: `/api/v1/resumes/${resume.id}/file`,
+    }));
+};
+
+// Get one resume
+const getResumeById = async (id: string) => {
+    const resume = await resumeRepository.getById(id);
+
+    if (!resume) {
+        return null;
+    }
+
+    return {
+        ...resume,
+        url: `/api/v1/resumes/${resume.id}/file`,
+    };
+};
+
+// Get resume file
+const getResumeFile = async (id: string) => {
+    const resume = await resumeRepository.getById(id);
+
+    if (!resume) {
+        return null;
+    }
+
+    return getFilePath(
+        resume.file_storage_key
+    );
+};
+
+// Create resume
+const createResume = async (
+    file: Express.Multer.File,
+    data: CreateResumeData
+) => {
+    const resumes = await resumeRepository.find_all();
+
+    // The first resume must always be active.
     if (resumes.length === 0) {
         data.is_active = true;
     }
 
-
-    // If the new resume should be active,
-    // deactivate the current active resume first.
-    if (data.is_active === true) {
+    // Deactivate the current resume if the new resume should be active.
+    if (data.is_active === true && resumes.length > 0) {
         await resumeRepository.deactivateAll();
     }
 
-    return await resumeRepository.create(data);
+    const filename = `${randomUUID()}.pdf`;
+
+    const storageKey = await saveFile(
+        file.buffer,
+        "personal_info/resumes",
+        filename
+    );
+
+    try {
+        data.file_storage_key = storageKey;
+
+        return await resumeRepository.create(data);
+    } catch (error) {
+        await deleteFile(storageKey);
+
+        throw error;
+    }
 };
 
-// Update
-const update = async (
+// Update resume metadata
+const updateResume = async (
     id: string,
     data: UpdateResumeData
 ) => {
+    const existingResume = await resumeRepository.getById(id);
 
-    const currentResume = await resumeRepository.getById(id);
-
-    if (!currentResume) {
-        throw new Error(
-            "Resume not found."
-        );
+    if (!existingResume) {
+        return null;
     }
 
-    // Prevent the only active resume from becoming inactive
+    // Prevent the only active resume from becoming inactive.
     if (
-        currentResume.is_active === true &&
+        existingResume.is_active === true &&
         data.is_active === false
     ) {
         const resumeCount = await resumeRepository.count();
@@ -74,61 +116,66 @@ const update = async (
         );
     }
 
-    // Activating this resume
+    // Activate this resume and deactivate the others.
     if (data.is_active === true) {
         await resumeRepository.deactivateAll();
     }
 
-    return await resumeRepository.update(id, data);
+    return resumeRepository.update(id, data);
 };
 
-// Delete
-const remove = async (id: string) => {
+// Delete resume
+const deleteResume = async (id: string) => {
+    const existingResume = await resumeRepository.getById(id);
 
-    const currentResume = await resumeRepository.getById(id);
-
-    if (!currentResume) {
+    if (!existingResume) {
         return null;
     }
 
-    // If deleting an inactive resume, simply delete it.
-    if (!currentResume.is_active) {
-        return await resumeRepository.remove(id);
-    }
-
-    // The active resume cannot be deleted if it is
-    // the only resume available.
+    // Prevent deleting the only resume.
     const resumeCount = await resumeRepository.count();
 
-    if (resumeCount === 1) {
+    if (existingResume.is_active && resumeCount === 1) {
         throw new Error(
             "Cannot delete the only resume."
         );
     }
 
-    // Find the next resume that should become active.
-    const nextResume = await resumeRepository.getPreviousResume(id);
+    // Find a replacement if deleting the active resume.
+    let nextResume = null;
 
-    if (!nextResume) {
-        throw new Error(
-            "Cannot delete the active resume because no replacement resume was found."
-        );
+    if (existingResume.is_active) {
+        nextResume = await resumeRepository.getPreviousResume(id);
+
+        if (!nextResume) {
+            throw new Error(
+                "Cannot delete the active resume because no replacement resume was found."
+            );
+        }
     }
 
-    // Delete current active resume
-    await resumeRepository.remove(id);
+    const result = await resumeRepository.remove(id);
 
-    // Promote previous resume
-    await resumeRepository.activate(nextResume.id);
+    if (!result) {
+        return null;
+    }
 
-    return nextResume;
+    // Activate the replacement before deleting the file.
+    if (nextResume) {
+        await resumeRepository.activate(nextResume.id);
+    }
+
+    await deleteFile(existingResume.file_storage_key);
+
+    return nextResume ?? result;
 };
 
 export default {
     getPublicResume,
-    find_all,
-    getById,
-    create,
-    update,
-    remove
+    getAllResumes,
+    getResumeById,
+    getResumeFile,
+    createResume,
+    updateResume,
+    deleteResume,
 };

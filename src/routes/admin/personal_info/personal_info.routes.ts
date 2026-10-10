@@ -4,6 +4,7 @@ import resumeRouter from "./resume.routes.js";
 import personal_infoController from "../../../https/controllers/personal_info/personal_info.controller.js";
 import { validateUpdate } from "../../../https/middlewares/personal_info/personal_info.middleware.js";
 import validateImage from "../../../https/middlewares/imageValidator.middleware.js";
+import upload from "../../../https/middlewares/upload.js";
 
 const personalInfoRouter = Router();
 
@@ -17,6 +18,6 @@ personalInfoRouter.get('/', personal_infoController.getPersonalInfo);
 personalInfoRouter.patch('/', validateUpdate, personal_infoController.updatePersonalInfo);
 
 //Update Personal Info Image
-personalInfoRouter.put('/', validateImage, personal_infoController.updatePersonalInfoProfileImage)
+personalInfoRouter.put('/', upload.single("file"), validateImage, personal_infoController.updatePersonalInfoProfileImage);
 
 export default personalInfoRouter;

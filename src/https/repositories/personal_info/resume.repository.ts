@@ -11,7 +11,6 @@ const getPublicResume = async () => {
         `
             SELECT
                 title,
-                file_url,
                 file_name
             FROM resumes
             WHERE is_active = true
@@ -29,7 +28,6 @@ const find_all = async () => {
             SELECT
                 id,
                 title,
-                file_url,
                 file_name,
                 version,
                 is_active,
@@ -41,6 +39,19 @@ const find_all = async () => {
 
     return result.rows;
 };
+
+const getResumeStorageKey = async (id: string) => {
+    const result = await pool.query(
+        `
+            Select
+                file_url
+            From resumes
+            WHERE id = $1
+        `,[id]
+    )
+
+    return result.rows[0].icon ?? null;
+}
 
 //get one
 const getById = async (id: string) => {
@@ -83,7 +94,7 @@ const create = async (data: CreateResumeData) => {
         `,
         [
             data.title,
-            data.file_url,
+            data.file_storage_key,
             data.file_name,
             data.version,
             data.is_active,
@@ -107,7 +118,6 @@ const update = async (
             string
         > = {
             title: "title",
-            file_url: "file_url",
             file_name: "file_name",
             version: "version",
             is_active: "is_active",
@@ -209,6 +219,7 @@ export default {
     getPublicResume,
     find_all,
     getById,
+    getResumeStorageKey,
     create,
     update,
     remove,

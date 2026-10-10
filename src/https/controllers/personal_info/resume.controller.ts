@@ -1,96 +1,172 @@
-import resumeService from "../../services/personal_info/resume.service.js";
-
 import type { Request, Response } from "express";
 
+import resumeService from "../../services/personal_info/resume.service.js";
+
 // Get public resume
-const getPublicResume = async (req: Request, res: Response) => {
-    try {
-        const resume = await resumeService.getPublicResume();
-        res.json(resume);
-    } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-    }
-};
-
-// Admin
-// Get all resumes
-const find_all = async (req: Request, res: Response) => {
-    try {
-        const resumes = await resumeService.find_all();
-        res.json(resumes);
-    } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-    }
-};
-
-// Get a specific resume by ID
-const getById = async (
-    req: Request<{ id: string }>,
-    res: Response
-) => {
-
-    try {
-
-        const resume = await resumeService.getById(req.params.id);
-
-        if (!resume) {
-            return res.status(404).json({ error: "Resume not found." });
-        }
-
-        res.json(resume);
-
-    } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
-    }
-};
-
-// Create a new resume
-const create = async (
+const getPublicResume = async (
     req: Request,
     res: Response
 ) => {
     try {
-        const newResume = await resumeService.create(req.body);
-        res.status(201).json(newResume);
+        const resume =
+            await resumeService.getPublicResume();
+
+        res.status(200).json(resume);
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({
+            error: (error as Error).message,
+        });
     }
 };
 
-// Update an existing resume
-const update = async (
+// Get all resumes
+const getAllResumes = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const resumes =
+            await resumeService.getAllResumes();
+
+        res.status(200).json(resumes);
+    } catch (error) {
+        res.status(500).json({
+            error: (error as Error).message,
+        });
+    }
+};
+
+// Get one resume
+const getResumeById = async (
     req: Request<{ id: string }>,
     res: Response
 ) => {
     try {
-        const updatedResume = await resumeService.update(
-            req.params.id,
-            req.body
-        );
-        res.json(updatedResume);
+        const resume =
+            await resumeService.getResumeById(
+                req.params.id
+            );
+
+        if (!resume) {
+            res.status(404).json({
+                message: "Resume not found",
+            });
+            return;
+        }
+
+        res.status(200).json(resume);
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(500).json({
+            error: (error as Error).message,
+        });
     }
 };
 
-//delete a resume
-const remove = async (
+// Get resume file
+const getResumeFile = async (
     req: Request<{ id: string }>,
     res: Response
 ) => {
     try {
-        const deletedResume = await resumeService.remove(req.params.id);
-        res.json(deletedResume);
+        const filePath =
+            await resumeService.getResumeFile(
+                req.params.id
+            );
+
+        if (!filePath) {
+            res.status(404).json({
+                message: "Resume file not found",
+            });
+            return;
+        }
+
+        res.sendFile(filePath);
     } catch (error) {
-        res.status(500).json({ error: (error as Error).message });
+        res.status(404).json({
+            message: "Resume file not found",
+        });
+    }
+};
+
+// Create resume
+const createResume = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const resume =
+            await resumeService.createResume(
+                req.file!,
+                req.body
+            );
+
+        res.status(201).json(resume);
+    } catch (error) {
+        res.status(500).json({
+            error: (error as Error).message,
+        });
+    }
+};
+
+// Update resume metadata
+const updateResume = async (
+    req: Request<{ id: string }>,
+    res: Response
+) => {
+    try {
+        const resume =
+            await resumeService.updateResume(
+                req.params.id,
+                req.body
+            );
+
+        if (!resume) {
+            res.status(404).json({
+                message: "Resume not found",
+            });
+            return;
+        }
+
+        res.status(200).json(resume);
+    } catch (error) {
+        res.status(500).json({
+            error: (error as Error).message,
+        });
+    }
+};
+
+// Delete resume
+const deleteResume = async (
+    req: Request<{ id: string }>,
+    res: Response
+) => {
+    try {
+        const resume =
+            await resumeService.deleteResume(
+                req.params.id
+            );
+
+        if (!resume) {
+            res.status(404).json({
+                message: "Resume not found",
+            });
+            return;
+        }
+
+        res.status(200).json(resume);
+    } catch (error) {
+        res.status(500).json({
+            error: (error as Error).message,
+        });
     }
 };
 
 export default {
     getPublicResume,
-    find_all,
-    getById,
-    create,
-    update,
-    remove
+    getAllResumes,
+    getResumeById,
+    getResumeFile,
+    createResume,
+    updateResume,
+    deleteResume,
 };

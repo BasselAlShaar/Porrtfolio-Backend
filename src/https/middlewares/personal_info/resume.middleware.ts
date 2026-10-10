@@ -2,14 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 
 const MAX_LENGTH = {
     title: 200,
-    file_url: 2048,
     file_name: 255,
     version: 200,
 } as const;
 
 const createAllowedFields = [
     "title",
-    "file_url",
     "file_name",
     "version",
     "is_active",
@@ -18,7 +16,6 @@ const createAllowedFields = [
 
 const updateAllowedFields = [
     "title",
-    "file_url",
     "file_name",
     "version",
     "is_active",
@@ -26,23 +23,6 @@ const updateAllowedFields = [
 ] as const;
 
 type AllowedField = string;
-
-const isValidUrl = (value: unknown): value is string => {
-    if (typeof value !== "string" || !value.trim()) {
-        return false;
-    }
-
-    try {
-        const url = new URL(value);
-
-        return (
-            url.protocol === "http:" ||
-            url.protocol === "https:"
-        );
-    } catch {
-        return false;
-    }
-};
 
 const isNonNegativeInteger = (value: unknown): value is number => {
     return (
@@ -123,43 +103,6 @@ const validateStringField = (
     return true;
 };
 
-const validateUrlField = (
-    value: unknown,
-    fieldName: string,
-    res: Response,
-    required = false
-): boolean => {
-    if (value === undefined || value === null) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid HTTP or HTTPS URL.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (!isValidUrl(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid HTTP or HTTPS URL.`,
-        });
-
-        return false;
-    }
-
-    if (value.length > MAX_LENGTH.file_url) {
-        res.status(400).json({
-            message: `${fieldName} must not exceed ${MAX_LENGTH.file_url} characters.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
 const validateBooleanField = (
     value: unknown,
     fieldName: string,
@@ -227,16 +170,6 @@ const validateCommonFields = (
             body.title,
             "title",
             MAX_LENGTH.title,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateUrlField(
-            body.file_url,
-            "file_url",
             res
         )
     ) {
@@ -324,17 +257,6 @@ const validateCreate = (
             res,
             true,
             false
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateUrlField(
-            body.file_url,
-            "file_url",
-            res,
-            true
         )
     ) {
         return;
