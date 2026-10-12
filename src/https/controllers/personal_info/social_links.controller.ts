@@ -67,12 +67,13 @@ const createSocialLink = async (
     next: NextFunction
 ) => {
     try {
-        const result = await socialLinksService.createSocialLink(req.body);
+    const result = await socialLinksService.createSocialLink(req.body);
+
         res.status(201).json(result);
     } catch (error) {
         next(error);
     }
-}
+};
 
 //update
 const updateSocialLink = async (

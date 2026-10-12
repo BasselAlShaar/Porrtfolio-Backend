@@ -465,32 +465,37 @@ const create = async (data: CreateProjectData) => {
         }
 
         if (data.images?.length) {
-            await client.query(`
-                INSERT INTO project_images (
-                    project_id,
-                    image_storage_key,
-                    alt_text,
-                    caption,
-                    image_type,
-                    display_order
-                )
-                SELECT
-                    $1,
-                    alt_text,
-                    caption,
-                    image_type,
-                    display_order
-                FROM jsonb_to_recordset($2::jsonb)
-                AS images(
-                    alt_text text,
-                    caption text,
-                    image_type text,
-                    display_order integer
-                );
-            `, [
-                project.id,
-                JSON.stringify(data.images)
-            ]);
+            await client.query(
+                `
+                    INSERT INTO project_images (
+                        project_id,
+                        image_storage_key,
+                        alt_text,
+                        caption,
+                        image_type,
+                        display_order
+                    )
+                    SELECT
+                        $1,
+                        image_storage_key,
+                        alt_text,
+                        caption,
+                        image_type,
+                        display_order
+                    FROM jsonb_to_recordset($2::jsonb)
+                    AS images(
+                        image_storage_key text,
+                        alt_text text,
+                        caption text,
+                        image_type text,
+                        display_order integer
+                    );
+                `,
+                [
+                    project.id,
+                    JSON.stringify(data.images),
+                ]
+            );
         }
 
         if (data.features?.length) {

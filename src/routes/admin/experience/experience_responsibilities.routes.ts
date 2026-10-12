@@ -6,7 +6,7 @@ import { validateCreate, validateUpdate } from "../../../https/middlewares/exper
 
 const experienceResponsibilitiesRouter = Router();
 
-experienceResponsibilitiesRouter.get("/", experience_responsibilitiesController.getAllExperienceResponsibilities);
+experienceResponsibilitiesRouter.get("/all/:id", validateUUID, experience_responsibilitiesController.getAllExperienceResponsibilities);
 
 experienceResponsibilitiesRouter.get("/:id", validateUUID, experience_responsibilitiesController.getExperienceResponsibilityById);
 

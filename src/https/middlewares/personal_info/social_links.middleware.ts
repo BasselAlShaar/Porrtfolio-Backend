@@ -4,6 +4,7 @@ const MAX_LENGTH = {
     platform: 200,
     label: 200,
     url: 2048,
+    icon: 200,
     is_visible: 200,
 } as const;
 
@@ -11,6 +12,7 @@ const createAllowedFields = [
     "platform",
     "label",
     "url",
+    "icon",
     "display_order",
     "is_visible",
 ] as const;
@@ -19,6 +21,7 @@ const updateAllowedFields = [
     "platform",
     "label",
     "url",
+    "icon",
     "display_order",
     "is_visible",
 ] as const;
@@ -236,6 +239,17 @@ const validateCommonFields = (
             body.label,
             "label",
             MAX_LENGTH.label,
+            res
+        )
+    ) {
+        return false;
+    }
+
+    if (
+        !validateStringField(
+            body.icon,
+            "icon",
+            MAX_LENGTH.icon,
             res
         )
     ) {

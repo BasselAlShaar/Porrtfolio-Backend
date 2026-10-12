@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import upload from "../../../https/middlewares/upload.js";
 
 import projectsController from '../../../https/controllers/project/projects.controller.js';
 
@@ -24,7 +25,7 @@ projectRouter.use("/:slug/challenges", projectChallengesRouter)
 projectRouter.get('/', projectsController.getAllCards);
 
 //Create new Project
-projectRouter.post('/', validateCreate, projectsController.createProject);
+projectRouter.post('/', upload.array("files", 10), validateCreate, projectsController.createProject);
 
 //Get Project by slug
 projectRouter.get('/:slug', validateSlug, projectsController.getBySlug);

@@ -11,13 +11,14 @@ const find_all = async (id: string) => {
     const result = await pool.query(
         `
             SELECT
-                id,
-                title,
-                description,
-                solution,
-                display_order
-            FROM project_challenges
-            WHERE project_id = $1
+                pc.id,
+                pc.title,
+                pc.description,
+                pc.solution,
+                pc.display_order
+            FROM project_challenges pc
+            JOIN projects p ON pc.project_id = p.id
+            WHERE p.slug = $1
         `,[id]
     )
 
@@ -25,18 +26,21 @@ const find_all = async (id: string) => {
 }
 
 //const get one
-const getById = async (id: string) => {
+const getById = async (id: string, slug: string) => {
     const result = await pool.query(
         `
             SELECT
-                id,
-                title,
-                description,
-                solution,
-                display_order
-            FROM project_challenges
-            WHERE id = $1
-        `,[id]
+                pc.id,
+                p.slug AS project_slug,
+                pc.title,
+                pc.description,
+                pc.solution,
+                pc.display_order
+            FROM project_challenges pc
+            JOIN projects p ON pc.project_id = p.id
+            WHERE pc.id = $1
+            and p.slug = $2
+        `,[id, slug]
     );
 
     return result.rows[0] ?? null;

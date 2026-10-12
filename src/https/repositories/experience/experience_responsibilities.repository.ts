@@ -11,6 +11,7 @@ const find_all = async (id: string) => {
     const result = await pool.query(
         `
             SELECT
+                id,
                 title,
                 description,
                 display_order

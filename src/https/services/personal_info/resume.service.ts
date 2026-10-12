@@ -11,7 +11,16 @@ import type {
 
 // Get public resume
 const getPublicResume = async () => {
-    return resumeRepository.getPublicResume();
+    const resume = await resumeRepository.getPublicResume();
+
+    if (!resume) {
+        return null;
+    }
+
+    return {
+        ...resume,
+        file_url: `/api/v1/personal_info/resumes/${resume.id}/file`,
+    };
 };
 
 // Get all resumes
@@ -20,7 +29,7 @@ const getAllResumes = async () => {
 
     return resumes.map((resume) => ({
         ...resume,
-        url: `/api/v1/resumes/${resume.id}/file`,
+        file_url: `/api/v1/personal_info/resumes/${resume.id}/file`,
     }));
 };
 
@@ -34,7 +43,7 @@ const getResumeById = async (id: string) => {
 
     return {
         ...resume,
-        url: `/api/v1/resumes/${resume.id}/file`,
+        file_url: `/api/v1/personal_info/resumes/${resume.id}/file`,
     };
 };
 
@@ -47,7 +56,7 @@ const getResumeFile = async (id: string) => {
     }
 
     return getFilePath(
-        resume.file_storage_key
+        resume.file_url
     );
 };
 
@@ -70,16 +79,18 @@ const createResume = async (
 
     const filename = `${randomUUID()}.pdf`;
 
+    const id = randomUUID();
+
     const storageKey = await saveFile(
         file.buffer,
-        "personal_info/resumes",
+        `personal_info/resumes`,
         filename
     );
-
+    
     try {
         data.file_storage_key = storageKey;
-
-        return await resumeRepository.create(data);
+        
+        return await resumeRepository.create(id,data);
     } catch (error) {
         await deleteFile(storageKey);
 
@@ -165,7 +176,7 @@ const deleteResume = async (id: string) => {
         await resumeRepository.activate(nextResume.id);
     }
 
-    await deleteFile(existingResume.file_storage_key);
+    await deleteFile(existingResume.file_url);
 
     return nextResume ?? result;
 };

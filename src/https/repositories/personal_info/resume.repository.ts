@@ -10,6 +10,7 @@ const getPublicResume = async () => {
     const result = await pool.query(
         `
             SELECT
+                id,
                 title,
                 file_name
             FROM resumes
@@ -75,10 +76,11 @@ const getById = async (id: string) => {
 };
 
 //create
-const create = async (data: CreateResumeData) => {
+const create = async (id: string, data: CreateResumeData) => {
     const result = await pool.query(
         `
             INSERT INTO resumes (
+                id,
                 title,
                 file_url,
                 file_name,
@@ -88,11 +90,12 @@ const create = async (data: CreateResumeData) => {
             )
             VALUES (
                 $1, $2, $3,
-                $4, $5, $6
+                $4, $5, $6, $7
             )
             RETURNING *
         `,
         [
+            id,
             data.title,
             data.file_storage_key,
             data.file_name,

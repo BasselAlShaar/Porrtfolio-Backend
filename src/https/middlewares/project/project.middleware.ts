@@ -1,3 +1,4 @@
+
 import type { NextFunction, Request, Response } from "express";
 
 const MAX_LENGTH = {
@@ -13,7 +14,6 @@ const MAX_LENGTH = {
     project_link_type: 100,
     project_link_label: 200,
     project_link_url: 2048,
-    project_image_url: 2048,
     project_image_alt_text: 200,
     project_image_caption: 500,
     project_image_type: 200,
@@ -21,7 +21,7 @@ const MAX_LENGTH = {
     project_features_description: 5000,
     project_challenges_title: 200,
     project_challenges_description: 5000,
-    project_challenges_solution: 500
+    project_challenges_solution: 500,
 } as const;
 
 const createAllowedFields = [
@@ -41,9 +41,9 @@ const createAllowedFields = [
     "skills",
     "technologies",
     "links",
-    "images",
+    "images_metadata",
     "features",
-    "challenges"
+    "challenges",
 ] as const;
 
 const updateAllowedFields = [
@@ -64,14 +64,29 @@ const updateAllowedFields = [
 
 type AllowedField = string;
 
+type ImageMetadata = {
+    file_index: number;
+    alt_text?: string | null;
+    caption?: string | null;
+    image_type: string;
+    display_order: number;
+};
+
+const JSON_ARRAY_FIELDS = [
+    "skills",
+    "technologies",
+    "links",
+    "images_metadata",
+    "features",
+    "challenges",
+] as const;
+
 const isValidDate = (value: unknown): value is string => {
     if (typeof value !== "string" || !value.trim()) {
         return false;
     }
 
-    const date = new Date(value);
-
-    return !Number.isNaN(date.getTime());
+    return !Number.isNaN(new Date(value).getTime());
 };
 
 const isValidUrl = (value: unknown): value is string => {
@@ -101,7 +116,9 @@ const isValidUUID = (value: unknown): value is string => {
     );
 };
 
-const isNonNegativeInteger = (value: unknown): value is number => {
+const isNonNegativeInteger = (
+    value: unknown
+): value is number => {
     return (
         typeof value === "number" &&
         Number.isInteger(value) &&
@@ -142,7 +159,6 @@ const validateStringField = (
             res.status(400).json({
                 message: `${fieldName} is required and must be a non-empty string.`,
             });
-
             return false;
         }
 
@@ -157,7 +173,6 @@ const validateStringField = (
         res.status(400).json({
             message: `${fieldName} must be a non-empty string.`,
         });
-
         return false;
     }
 
@@ -165,7 +180,6 @@ const validateStringField = (
         res.status(400).json({
             message: `${fieldName} must be a non-empty string.`,
         });
-
         return false;
     }
 
@@ -173,7 +187,6 @@ const validateStringField = (
         res.status(400).json({
             message: `${fieldName} must not exceed ${maxLength} characters.`,
         });
-
         return false;
     }
 
@@ -184,13 +197,12 @@ const validateUrlField = (
     value: unknown,
     fieldName: string,
     maxLength: number,
-    res: Response,
+    res: Response
 ): boolean => {
     if (value === undefined || value === null) {
         res.status(400).json({
-            message: `${fieldName} is required and must be a valid HTTP or HTTPS URL.`
+            message: `${fieldName} is required and must be a valid HTTP or HTTPS URL.`,
         });
-
         return false;
     }
 
@@ -198,7 +210,6 @@ const validateUrlField = (
         res.status(400).json({
             message: `${fieldName} must be a valid HTTP or HTTPS URL.`,
         });
-
         return false;
     }
 
@@ -206,7 +217,6 @@ const validateUrlField = (
         res.status(400).json({
             message: `${fieldName} must not exceed ${maxLength} characters.`,
         });
-
         return false;
     }
 
@@ -225,7 +235,6 @@ const validateDateField = (
             res.status(400).json({
                 message: `${fieldName} is required and must be a valid date.`,
             });
-
             return false;
         }
 
@@ -240,7 +249,6 @@ const validateDateField = (
         res.status(400).json({
             message: `${fieldName} must be a valid date.`,
         });
-
         return false;
     }
 
@@ -248,7 +256,6 @@ const validateDateField = (
         res.status(400).json({
             message: `${fieldName} must be a valid date${nullable ? " or null" : ""}.`,
         });
-
         return false;
     }
 
@@ -269,7 +276,6 @@ const validateBooleanField = (
         res.status(400).json({
             message: `${fieldName} is required and must be a boolean.`,
         });
-
         return false;
     }
 
@@ -277,7 +283,6 @@ const validateBooleanField = (
         res.status(400).json({
             message: `${fieldName} must be a boolean.`,
         });
-
         return false;
     }
 
@@ -294,7 +299,6 @@ const validateDisplayOrder = (
             res.status(400).json({
                 message: "display_order must be a non-negative integer.",
             });
-
             return false;
         }
 
@@ -305,7 +309,6 @@ const validateDisplayOrder = (
         res.status(400).json({
             message: "display_order must be a non-negative integer.",
         });
-
         return false;
     }
 
@@ -328,8 +331,71 @@ const validateUUIDArray = (
         res.status(400).json({
             message: `${fieldName} must be an array of valid UUIDs.`,
         });
-
         return false;
+    }
+
+    return true;
+};
+
+// Parse JSON fields and normalize multipart scalar fields.
+const normalizeCreateBody = (
+    body: Record<string, unknown>,
+    res: Response
+): boolean => {
+    for (const field of JSON_ARRAY_FIELDS) {
+        const value = body[field];
+
+        if (value === undefined || value === null) {
+            continue;
+        }
+
+        if (typeof value === "string") {
+            try {
+                body[field] = JSON.parse(value);
+            } catch {
+                res.status(400).json({
+                    message: `${field} must contain valid JSON.`,
+                });
+                return false;
+            }
+        }
+    }
+
+    if (typeof body.featured === "string") {
+        if (body.featured === "true") {
+            body.featured = true;
+        } else if (body.featured === "false") {
+            body.featured = false;
+        } else {
+            res.status(400).json({
+                message: "featured must be true or false.",
+            });
+            return false;
+        }
+    }
+
+    if (typeof body.display_order === "string") {
+        if (!body.display_order.trim()) {
+            res.status(400).json({
+                message: "display_order must be a non-negative integer.",
+            });
+            return false;
+        }
+
+        const parsed = Number(body.display_order);
+
+        if (!Number.isInteger(parsed) || parsed < 0) {
+            res.status(400).json({
+                message: "display_order must be a non-negative integer.",
+            });
+            return false;
+        }
+
+        body.display_order = parsed;
+    }
+
+    if (body.end_date === "") {
+        body.end_date = null;
     }
 
     return true;
@@ -347,7 +413,6 @@ const validateLinks = (
         res.status(400).json({
             message: "links must be an array.",
         });
-
         return false;
     }
 
@@ -360,7 +425,6 @@ const validateLinks = (
             res.status(400).json({
                 message: "Each link must be an object.",
             });
-
             return false;
         }
 
@@ -381,20 +445,16 @@ const validateLinks = (
             res.status(400).json({
                 message: `Unknown link field(s): ${unknownKeys.join(", ")}`,
             });
-
             return false;
         }
 
-        //link type
         if (
             typeof item.link_type !== "string" ||
             !item.link_type.trim()
         ) {
             res.status(400).json({
-                message:
-                    "Each link_type must be a non-empty string.",
+                message: "Each link_type must be a non-empty string.",
             });
-
             return false;
         }
 
@@ -405,37 +465,30 @@ const validateLinks = (
             res.status(400).json({
                 message: `link type must not exceed ${MAX_LENGTH.project_link_type} characters.`,
             });
-
             return false;
         }
 
-        //label
         if (
             item.label !== undefined &&
             item.label !== null &&
             typeof item.label !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "Link label must be a string or null.",
+                message: "Link label must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.label === "string" &&
-            item.label.length >
-                MAX_LENGTH.project_link_label
+            item.label.length > MAX_LENGTH.project_link_label
         ) {
             res.status(400).json({
                 message: `Link label must not exceed ${MAX_LENGTH.project_link_label} characters.`,
             });
-
             return false;
         }
 
-        //url
         if (
             !validateUrlField(
                 item.url,
@@ -447,13 +500,10 @@ const validateLinks = (
             return false;
         }
 
-        //display order
         if (!isNonNegativeInteger(item.display_order)) {
             res.status(400).json({
-                message:
-                    "Link display_order must be a non-negative integer.",
+                message: "Link display_order must be a non-negative integer.",
             });
-
             return false;
         }
     }
@@ -461,21 +511,28 @@ const validateLinks = (
     return true;
 };
 
-const validateImages = (
+// Validate metadata for uploaded image files.
+const validateImagesMetadata = (
     value: unknown,
+    files: Express.Multer.File[],
     res: Response
 ): boolean => {
-    if (value === undefined || value === null) {
-        return true;
-    }
-
     if (!Array.isArray(value)) {
         res.status(400).json({
-            message: "Images must be an array.",
+            message: "images_metadata must be an array.",
         });
-
         return false;
     }
+
+    if (value.length !== files.length) {
+        res.status(400).json({
+            message:
+                "Each uploaded image must have exactly one metadata entry.",
+        });
+        return false;
+    }
+
+    const usedIndexes = new Set<number>();
 
     for (const image of value) {
         if (
@@ -484,16 +541,15 @@ const validateImages = (
             Array.isArray(image)
         ) {
             res.status(400).json({
-                message: "Each image must be an object.",
+                message: "Each image metadata entry must be an object.",
             });
-
             return false;
         }
 
         const item = image as Record<string, unknown>;
 
         const allowedKeys = [
-            "image_url",
+            "file_index",
             "alt_text",
             "caption",
             "image_type",
@@ -506,107 +562,100 @@ const validateImages = (
 
         if (unknownKeys.length > 0) {
             res.status(400).json({
-                message: `Unknown image field(s): ${unknownKeys.join(", ")}`,
+                message: `Unknown image metadata field(s): ${unknownKeys.join(", ")}`,
             });
-
             return false;
         }
 
-        //image url
         if (
-            !validateUrlField(
-                item.image_url,
-                "image_url",
-                MAX_LENGTH.project_image_url,
-                res
-            )
+            typeof item.file_index !== "number" ||
+            !Number.isInteger(item.file_index) ||
+            item.file_index < 0 ||
+            item.file_index >= files.length
         ) {
+            res.status(400).json({
+                message: "Each file_index must reference an uploaded image.",
+            });
             return false;
         }
 
-        //alt text
+        if (usedIndexes.has(item.file_index)) {
+            res.status(400).json({
+                message: "Each uploaded image must have a unique file_index.",
+            });
+            return false;
+        }
+
+        usedIndexes.add(item.file_index);
+
         if (
             item.alt_text !== undefined &&
             item.alt_text !== null &&
             typeof item.alt_text !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "image alt text must be a string or null.",
+                message: "Image alt_text must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.alt_text === "string" &&
             item.alt_text.length >
-            MAX_LENGTH.project_image_alt_text
+                MAX_LENGTH.project_image_alt_text
         ) {
             res.status(400).json({
-                message: `Image alt text must not exceed ${MAX_LENGTH.project_image_alt_text} characters.`,
+                message: `Image alt_text must not exceed ${MAX_LENGTH.project_image_alt_text} characters.`,
             });
-
             return false;
         }
 
-        //caption
         if (
             item.caption !== undefined &&
             item.caption !== null &&
             typeof item.caption !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "image caption must be a string or null.",
+                message: "Image caption must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.caption === "string" &&
             item.caption.length >
-            MAX_LENGTH.project_image_caption
+                MAX_LENGTH.project_image_caption
         ) {
             res.status(400).json({
                 message: `Image caption must not exceed ${MAX_LENGTH.project_image_caption} characters.`,
             });
-
             return false;
         }
 
-        //image type
         if (
             typeof item.image_type !== "string" ||
             !item.image_type.trim()
         ) {
             res.status(400).json({
-                message:
-                    "Each image type must be a non-empty string.",
+                message: "Each image must have a non-empty image_type.",
             });
-
             return false;
         }
 
         if (
             item.image_type.length >
-            MAX_LENGTH.project_image_type
+                MAX_LENGTH.project_image_type
         ) {
             res.status(400).json({
-                message: `Image type must not exceed ${MAX_LENGTH.project_image_type} characters.`,
+                message: `image_type must not exceed ${MAX_LENGTH.project_image_type} characters.`,
             });
-
             return false;
         }
 
-        //display order
         if (!isNonNegativeInteger(item.display_order)) {
             res.status(400).json({
-                message:
-                    "Image display_order must be a non-negative integer.",
+                message: "Image display_order must be a non-negative integer.",
             });
-
             return false;
         }
     }
@@ -626,7 +675,6 @@ const validateFeatures = (
         res.status(400).json({
             message: "Features must be an array.",
         });
-
         return false;
     }
 
@@ -639,7 +687,6 @@ const validateFeatures = (
             res.status(400).json({
                 message: "Each feature must be an object.",
             });
-
             return false;
         }
 
@@ -659,20 +706,16 @@ const validateFeatures = (
             res.status(400).json({
                 message: `Unknown feature field(s): ${unknownKeys.join(", ")}`,
             });
-
             return false;
         }
 
-        //title
         if (
             typeof item.title !== "string" ||
             !item.title.trim()
         ) {
             res.status(400).json({
-                message:
-                    "Each feature title must be a non-empty string.",
+                message: "Each feature title must be a non-empty string.",
             });
-
             return false;
         }
 
@@ -683,43 +726,35 @@ const validateFeatures = (
             res.status(400).json({
                 message: `Feature title must not exceed ${MAX_LENGTH.project_features_title} characters.`,
             });
-
             return false;
         }
 
-        //description
         if (
             item.description !== undefined &&
             item.description !== null &&
             typeof item.description !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "Feature description must be a string or null.",
+                message: "Feature description must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.description === "string" &&
             item.description.length >
-            MAX_LENGTH.project_features_description
+                MAX_LENGTH.project_features_description
         ) {
             res.status(400).json({
                 message: `Feature description must not exceed ${MAX_LENGTH.project_features_description} characters.`,
             });
-
             return false;
         }
 
-        //display order
         if (!isNonNegativeInteger(item.display_order)) {
             res.status(400).json({
-                message:
-                    "Feature display_order must be a non-negative integer.",
+                message: "Feature display_order must be a non-negative integer.",
             });
-
             return false;
         }
     }
@@ -739,7 +774,6 @@ const validateChallenges = (
         res.status(400).json({
             message: "Challenges must be an array.",
         });
-
         return false;
     }
 
@@ -752,7 +786,6 @@ const validateChallenges = (
             res.status(400).json({
                 message: "Each challenge must be an object.",
             });
-
             return false;
         }
 
@@ -771,22 +804,18 @@ const validateChallenges = (
 
         if (unknownKeys.length > 0) {
             res.status(400).json({
-                message: `Unknown challenges field(s): ${unknownKeys.join(", ")}`,
+                message: `Unknown challenge field(s): ${unknownKeys.join(", ")}`,
             });
-
             return false;
         }
 
-        //title
         if (
             typeof item.title !== "string" ||
             !item.title.trim()
         ) {
             res.status(400).json({
-                message:
-                    "Each challenge title must be a non-empty string.",
+                message: "Each challenge title must be a non-empty string.",
             });
-
             return false;
         }
 
@@ -795,71 +824,59 @@ const validateChallenges = (
             MAX_LENGTH.project_challenges_title
         ) {
             res.status(400).json({
-                message: `Challenges title must not exceed ${MAX_LENGTH.project_challenges_title} characters.`,
+                message: `Challenge title must not exceed ${MAX_LENGTH.project_challenges_title} characters.`,
             });
-
             return false;
         }
 
-        //description
         if (
             item.description !== undefined &&
             item.description !== null &&
             typeof item.description !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "Challenges description must be a string or null.",
+                message: "Challenge description must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.description === "string" &&
             item.description.length >
-            MAX_LENGTH.project_challenges_description
+                MAX_LENGTH.project_challenges_description
         ) {
             res.status(400).json({
-                message: `Challenges description must not exceed ${MAX_LENGTH.project_challenges_description} characters.`,
+                message: `Challenge description must not exceed ${MAX_LENGTH.project_challenges_description} characters.`,
             });
-
             return false;
         }
 
-        //solution
         if (
             item.solution !== undefined &&
             item.solution !== null &&
             typeof item.solution !== "string"
         ) {
             res.status(400).json({
-                message:
-                    "Challenges solution must be a string or null.",
+                message: "Challenge solution must be a string or null.",
             });
-
             return false;
         }
 
         if (
             typeof item.solution === "string" &&
             item.solution.length >
-            MAX_LENGTH.project_challenges_solution
+                MAX_LENGTH.project_challenges_solution
         ) {
             res.status(400).json({
-                message: `Challenges solution must not exceed ${MAX_LENGTH.project_challenges_solution} characters.`,
+                message: `Challenge solution must not exceed ${MAX_LENGTH.project_challenges_solution} characters.`,
             });
-
             return false;
         }
 
-        //display order
         if (!isNonNegativeInteger(item.display_order)) {
             res.status(400).json({
-                message:
-                    "Challenges display_order must be a non-negative integer.",
+                message: "Challenge display_order must be a non-negative integer.",
             });
-
             return false;
         }
     }
@@ -875,7 +892,8 @@ const validateStatus = (
     required = false,
     nullable = true
 ): boolean => {
-    if (!validateStringField(
+    if (
+        !validateStringField(
             value,
             fieldName,
             maxLength,
@@ -896,14 +914,12 @@ const validateStatus = (
         value !== "in_progress" &&
         value !== "archived"
     ) {
-
         res.status(400).json({
-            message: `${fieldName} should be either completed, in_progress or archived.`
+            message:
+                `${fieldName} should be either completed, in_progress or archived.`,
         });
-
         return false;
     }
-
 
     return true;
 };
@@ -916,7 +932,8 @@ const validateProjectType = (
     required = false,
     nullable = true
 ): boolean => {
-    if (!validateStringField(
+    if (
+        !validateStringField(
             value,
             fieldName,
             maxLength,
@@ -932,83 +949,59 @@ const validateProjectType = (
         return true;
     }
 
-    if (
-        value !== "personal" &&
-        value !== "academic" &&
-        value !== "professional" &&
-        value !== "freelance" &&
-        value !== "open_source" &&
-        value !== "game" &&
-        value !== "other"
-    ) {
+    const allowedTypes = [
+        "personal",
+        "academic",
+        "professional",
+        "freelance",
+        "open_source",
+        "game",
+        "other",
+    ];
 
+    if (!allowedTypes.includes(value as string)) {
         res.status(400).json({
-            message: `${fieldName} should be either personal, academic, professional, freelance, open_source, game or other.`
+            message:
+                `${fieldName} should be either ${allowedTypes.join(", ")}.`,
         });
-
         return false;
     }
-
 
     return true;
 };
 
 const validateNestedFields = (
     body: Record<string, unknown>,
+    files: Express.Multer.File[],
     res: Response
 ): boolean => {
+    if (!validateUUIDArray(body.skills, "skills", res)) {
+        return false;
+    }
+
+    if (!validateUUIDArray(body.technologies, "technologies", res)) {
+        return false;
+    }
+
+    if (!validateLinks(body.links, res)) {
+        return false;
+    }
+
     if (
-        !validateUUIDArray(
-            body.skills,
-            "skills",
+        !validateImagesMetadata(
+            body.images_metadata,
+            files,
             res
         )
     ) {
         return false;
     }
 
-    if (
-        !validateUUIDArray(
-            body.technologies,
-            "technologies",
-            res
-        )
-    ) {
+    if (!validateFeatures(body.features, res)) {
         return false;
     }
 
-    if (!validateLinks(
-            body.links,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateImages(
-            body.images,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateFeatures(
-            body.features,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateChallenges(
-            body.challenges,
-            res
-        )
-    ) {
+    if (!validateChallenges(body.challenges, res)) {
         return false;
     }
 
@@ -1153,12 +1146,7 @@ const validateUpdateFields = (
         return false;
     }
 
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res
-        )
-    ) {
+    if (!validateDisplayOrder(body.display_order, res)) {
         return false;
     }
 
@@ -1170,26 +1158,35 @@ const validateCreate = (
     res: Response,
     next: NextFunction
 ): void => {
-    const body = req.body ?? {};
+    const body = req.body as Record<string, unknown> | undefined;
 
     if (
         typeof body !== "object" ||
-        Array.isArray(body) ||
-        body === null
+        body === null ||
+        Array.isArray(body)
     ) {
         res.status(400).json({
-            message: "Request body must be a JSON object.",
+            message: "Request body must be an object.",
         });
         return;
     }
 
-    if (
-        rejectUnknownFields(
-            body,
-            createAllowedFields,
-            res
-        )
-    ) {
+    const files = Array.isArray(req.files)
+        ? req.files as Express.Multer.File[]
+        : [];
+
+    if (files.length === 0) {
+        res.status(400).json({
+            message: "At least one project image must be uploaded.",
+        });
+        return;
+    }
+
+    if (!normalizeCreateBody(body, res)) {
+        return;
+    }
+
+    if (rejectUnknownFields(body, createAllowedFields, res)) {
         return;
     }
 
@@ -1323,28 +1320,16 @@ const validateCreate = (
     ) {
         return;
     }
-    
-    if (
-        !validateBooleanField(
-            body.featured,
-            "featured",
-            res
-        )
-    ) {
+
+    if (!validateBooleanField(body.featured, "featured", res)) {
         return;
     }
 
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res,
-            true
-        )
-    ) {
+    if (!validateDisplayOrder(body.display_order, res, true)) {
         return;
     }
 
-    if (!validateNestedFields(body, res)) {
+    if (!validateNestedFields(body, files, res)) {
         return;
     }
 
@@ -1360,8 +1345,8 @@ const validateUpdate = (
 
     if (
         typeof body !== "object" ||
-        Array.isArray(body) ||
-        body === null
+        body === null ||
+        Array.isArray(body)
     ) {
         res.status(400).json({
             message: "Request body must be a JSON object.",
@@ -1378,13 +1363,7 @@ const validateUpdate = (
         return;
     }
 
-    if (
-        rejectUnknownFields(
-            body,
-            updateAllowedFields,
-            res
-        )
-    ) {
+    if (rejectUnknownFields(body, updateAllowedFields, res)) {
         return;
     }
 

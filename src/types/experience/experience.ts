@@ -84,10 +84,10 @@ export interface ExperienceData {
 export interface CreateExperienceData extends ExperienceData {
 
     // IDs of existing skills to associate with this experience.
-    skill_ids?: string[];
+    skills?: string[];
 
     // IDs of existing technologies to associate with this experience.
-    technology_ids?: string[];
+    technologies?: string[];
 
     // Achievements belonging to this experience.
     achievements?: CreateExperienceAchievementData[];

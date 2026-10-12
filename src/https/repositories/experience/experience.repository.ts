@@ -69,6 +69,7 @@ const findAll = async () => {
                 SELECT jsonb_agg(
                     jsonb_build_object(
                         'id', r.id,
+                        'title', r.title,
                         'description', r.description
                     )
                     ORDER BY r.display_order, r.id
@@ -229,6 +230,7 @@ const findById = async (id: string) => {
                     SELECT jsonb_agg(
                         jsonb_build_object(
                             'id', er.id,
+                            'title', er.title,
                             'description', er.description,
                             'displayOrder', er.display_order
                         )
@@ -277,12 +279,14 @@ const findById = async (id: string) => {
 //
 // ================================================================
 
-const create = async (data: CreateExperienceData) => {
+const create = async (id: string, data: CreateExperienceData) => {
     // We need one dedicated connection because this is a transaction.
     //
     // DO NOT use pool.query() for individual statements here.
     // All queries must run on the SAME client.
     const client = await pool.connect();
+
+    
 
     try {
         // Start the transaction.
@@ -295,6 +299,7 @@ const create = async (data: CreateExperienceData) => {
         // ---------------------------------------------------------
         const experienceResult = await client.query(`
             INSERT INTO experience (
+                id,
                 company_name,
                 company_url,
                 position,
@@ -308,18 +313,19 @@ const create = async (data: CreateExperienceData) => {
             )
             VALUES (
                 $1, $2, $3, $4, $5,
-                $6, $7, $8, $9, $10
+                $6, $7, $8, $9, $10, $11
             )
             RETURNING *;
         `, [
+            id,
             data.company_name,
-            data.company_url ?? null,
+            data.company_url,
             data.position,
-            data.employment_type ?? null,
-            data.location ?? null,
-            data.description ?? null,
+            data.employment_type,
+            data.location,
+            data.description,
             data.start_date,
-            data.end_date ?? null,
+            data.end_date,
             data.is_current,
             data.display_order
         ]);
@@ -334,7 +340,7 @@ const create = async (data: CreateExperienceData) => {
         // No problem.
         //
         // We simply pretend this person is mysterious.
-        if (data.skill_ids?.length) {
+        if (data.skills?.length) {
             await client.query(`
                 INSERT INTO experience_skills (
                     experience_id,
@@ -343,9 +349,12 @@ const create = async (data: CreateExperienceData) => {
                 SELECT $1, unnest($2::uuid[]);
             `, [
                 experience.id,
-                data.skill_ids
+                data.skills
             ]);
         }
+
+        console.log("Technologies received:", data.technologies);
+        console.log("Experience ID:", experience.id);
 
         // ---------------------------------------------------------
         // 3. Attach technologies
@@ -355,7 +364,7 @@ const create = async (data: CreateExperienceData) => {
         //
         // More technologies = more impressive portfolio.
         // Probably.
-        if (data.technology_ids?.length) {
+        if (data.technologies?.length) {
             await client.query(`
                 INSERT INTO experience_technologies (
                     experience_id,
@@ -364,7 +373,7 @@ const create = async (data: CreateExperienceData) => {
                 SELECT $1, unnest($2::uuid[]);
             `, [
                 experience.id,
-                data.technology_ids
+                data.technologies
             ]);
         }
 
@@ -411,15 +420,18 @@ const create = async (data: CreateExperienceData) => {
             await client.query(`
                 INSERT INTO experience_responsibilities (
                     experience_id,
+                    title,
                     description,
                     display_order
                 )
                 SELECT
                     $1,
+                    title,
                     description,
                     display_order
                 FROM jsonb_to_recordset($2::jsonb)
                 AS responsibilities(
+                    title text,
                     description text,
                     display_order integer
                 );

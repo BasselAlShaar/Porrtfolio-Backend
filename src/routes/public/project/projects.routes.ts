@@ -1,9 +1,13 @@
 import { Router } from "express";
 
+import project_imageRouterPublic from "./images/project_images.routes.js";
+
 import projectsController from "../../../https/controllers/project/projects.controller.js";
 import validateSlug from "../../../https/middlewares/validateSlug.js";
 
 const projectRouterPublic = Router();
+
+projectRouterPublic.use("/images", project_imageRouterPublic);
 
 projectRouterPublic.get("/", projectsController.getAllPublicCards);
 

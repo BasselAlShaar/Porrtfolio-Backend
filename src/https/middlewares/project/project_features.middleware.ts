@@ -6,7 +6,6 @@ const MAX_LENGTH = {
 } as const;
 
 const createAllowedFields = [
-    "project_id",
     "title",
     "description",
     "display_order"
@@ -19,16 +18,6 @@ const updateAllowedFields = [
 ] as const;
 
 type AllowedField = string;
-
-const isValidUUID = (value: unknown): value is string => {
-    if (typeof value !== "string") {
-        return false;
-    }
-
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        value
-    );
-};
 
 const isNonNegativeInteger = (value: unknown): value is number => {
     return (
@@ -101,35 +90,6 @@ const validateStringField = (
     if (value.length > maxLength) {
         res.status(400).json({
             message: `${fieldName} must not exceed ${maxLength} characters.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
-const validateProjectId = (
-    value: unknown,
-    fieldName: string,
-    res: Response,
-    required = false
-): boolean => {
-    if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid UUID.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null || !isValidUUID(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid UUID.`,
         });
 
         return false;
@@ -227,17 +187,6 @@ const validateCreate = (
             body,
             createAllowedFields,
             res
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateProjectId(
-            body.project_id,
-            "project_id",
-            res,
-            true
         )
     ) {
         return;

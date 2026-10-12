@@ -10,7 +10,7 @@ import {
 
 const projectFeaturesRouter = Router({ mergeParams: true });
 
-projectFeaturesRouter.get("/", validateUUID, project_FeaturesController.getAllProjectFeatures);
+projectFeaturesRouter.get("/", project_FeaturesController.getAllProjectFeatures);
 projectFeaturesRouter.get("/:id", validateUUID, project_FeaturesController.getById);
 projectFeaturesRouter.post("/", validateCreate, project_FeaturesController.createProjectFeature);
 projectFeaturesRouter.patch("/:id", validateUUID, validateUpdate, project_FeaturesController.updateProjectFeature);

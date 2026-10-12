@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import path from "node:path";
 
 import project_imagesService from "../../services/project/project_images.service.js";
 
@@ -67,8 +68,10 @@ const getProjectImageFile = async (
 
         res.sendFile(filePath);
     } catch (error) {
-        res.status(404).json({
-            message: "Image file not found",
+        console.error("getProjectImageFile error:", error);
+
+        res.status(500).json({
+            message: (error as Error).message,
         });
     }
 };

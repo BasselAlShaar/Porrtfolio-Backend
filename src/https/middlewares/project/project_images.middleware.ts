@@ -7,7 +7,6 @@ const MAX_LENGTH = {
 } as const;
 
 const createAllowedFields = [
-    "project_id",
     "alt_text",
     "caption",
     "image_type",
@@ -24,16 +23,6 @@ const updateAllowedFields = [
 type AllowedField =
     | typeof createAllowedFields[number]
     | typeof updateAllowedFields[number];
-
-const isValidUUID = (value: unknown): value is string => {
-    if (typeof value !== "string") {
-        return false;
-    }
-
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        value
-    );
-};
 
 const parseNonNegativeInteger = (
     value: unknown
@@ -129,21 +118,6 @@ const validateStringField = (
     return true;
 };
 
-const validateProjectId = (
-    value: unknown,
-    res: Response
-): boolean => {
-    if (!isValidUUID(value)) {
-        res.status(400).json({
-            message: "project_id must be a valid UUID.",
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
 const validateDisplayOrder = (
     req: Request,
     res: Response,
@@ -206,10 +180,6 @@ const validateCreate = (
             res
         )
     ) {
-        return;
-    }
-
-    if (!validateProjectId(body.project_id, res)) {
         return;
     }
 

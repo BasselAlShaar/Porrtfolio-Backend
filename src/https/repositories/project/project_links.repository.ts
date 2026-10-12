@@ -7,18 +7,19 @@ import type {
 
 //admin
 //get all
-const find_all = async (id: string) => {
+const find_all = async (slug: string) => {
     const result = await pool.query(
         `
             SELECT
-                id,
-                link_type,
-                label,
-                url,
-                display_order
-            FROM project_links
-            WHERE project_id = $1
-        `,[id]
+                pc.id,
+                pc.link_type,
+                pc.label,
+                pc.url,
+                pc.display_order
+            FROM project_links pc
+            JOIN projects p ON pc.project_id = p.id
+            WHERE p.slug = $1
+        `,[slug]
     )
 
     return result.rows;
@@ -29,13 +30,14 @@ const getById = async (id: string) => {
     const result = await pool.query(
         `
             SELECT
-                id,
-                link_type,
-                label,
-                url,
-                display_order
-            FROM project_links
-            WHERE id = $1
+                pc.id,
+                pc.link_type,
+                pc.label,
+                pc.url,
+                pc.display_order
+            FROM project_links pc
+            JOIN projects p ON pc.project_id = p.id
+            WHERE pc.id = $1
         `,[id]
     );
 

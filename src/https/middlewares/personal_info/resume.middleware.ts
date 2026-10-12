@@ -6,7 +6,7 @@ const MAX_LENGTH = {
     version: 200,
 } as const;
 
-const createAllowedFields = [
+const ALLOWED_FIELDS = [
     "title",
     "file_name",
     "version",
@@ -14,31 +14,16 @@ const createAllowedFields = [
     "display_order",
 ] as const;
 
-const updateAllowedFields = [
-    "title",
-    "file_name",
-    "version",
-    "is_active",
-    "display_order",
-] as const;
-
-type AllowedField = string;
-
-const isNonNegativeInteger = (value: unknown): value is number => {
-    return (
-        typeof value === "number" &&
-        Number.isInteger(value) &&
-        value >= 0
-    );
-};
+type AllowedField = (typeof ALLOWED_FIELDS)[number];
+type Body = Record<string, unknown>;
 
 const rejectUnknownFields = (
-    body: Record<string, unknown>,
+    body: Body,
     allowedFields: readonly AllowedField[],
     res: Response
 ): boolean => {
     const unknownFields = Object.keys(body).filter(
-        (field) => !allowedFields.includes(field)
+        (field) => !allowedFields.includes(field as AllowedField)
     );
 
     if (unknownFields.length === 0) {
@@ -53,50 +38,38 @@ const rejectUnknownFields = (
 };
 
 const validateStringField = (
-    value: unknown,
-    fieldName: string,
-    maxLength: number,
+    body: Body,
+    fieldName: "title" | "file_name" | "version",
     res: Response,
-    required = false,
-    nullable = true
+    required: boolean,
+    nullable = false
 ): boolean => {
+    const value = body[fieldName];
+
     if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a non-empty string.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null) {
-        if (nullable) {
-            return true;
-        }
+        if (!required) return true;
 
         res.status(400).json({
-            message: `${fieldName} must be a non-empty string.`,
+            message: `${fieldName} is required and must be a non-empty string.`,
         });
-
         return false;
+    }
+
+    if (value === null && nullable) {
+        return true;
     }
 
     if (typeof value !== "string" || !value.trim()) {
         res.status(400).json({
             message: `${fieldName} must be a non-empty string.`,
         });
-
         return false;
     }
 
-    if (value.length > maxLength) {
+    if (value.length > MAX_LENGTH[fieldName]) {
         res.status(400).json({
-            message: `${fieldName} must not exceed ${maxLength} characters.`,
+            message: `${fieldName} must not exceed ${MAX_LENGTH[fieldName]} characters.`,
         });
-
         return false;
     }
 
@@ -104,120 +77,110 @@ const validateStringField = (
 };
 
 const validateBooleanField = (
-    value: unknown,
-    fieldName: string,
+    body: Body,
+    fieldName: "is_active",
     res: Response,
-    required = false
+    required: boolean,
+    parseString: boolean
 ): boolean => {
+    let value = body[fieldName];
+
     if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} must be a boolean.`,
-            });
+        if (!required) return true;
 
-            return false;
-        }
-
-        return true;
+        res.status(400).json({
+            message: `${fieldName} is required and must be a boolean.`,
+        });
+        return false;
     }
+
+    if (parseString && value === "true") value = true;
+    if (parseString && value === "false") value = false;
 
     if (typeof value !== "boolean") {
         res.status(400).json({
             message: `${fieldName} must be a boolean.`,
         });
-
         return false;
     }
 
+    body[fieldName] = value;
     return true;
 };
 
 const validateDisplayOrder = (
-    value: unknown,
+    body: Body,
     res: Response,
-    required = false
+    required: boolean,
+    parseString: boolean
 ): boolean => {
+    const value = body.display_order;
+
     if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: "display_order must be a non-negative integer.",
-            });
+        if (!required) return true;
 
-            return false;
-        }
-
-        return true;
+        res.status(400).json({
+            message: "display_order is required and must be a non-negative integer.",
+        });
+        return false;
     }
 
-    if (!isNonNegativeInteger(value)) {
+    let parsed: number;
+
+    if (typeof value === "number") {
+        parsed = value;
+    } else if (
+        parseString &&
+        typeof value === "string" &&
+        /^\d+$/.test(value)
+    ) {
+        parsed = Number(value);
+    } else {
         res.status(400).json({
             message: "display_order must be a non-negative integer.",
         });
-
         return false;
     }
 
+    if (!Number.isSafeInteger(parsed) || parsed < 0) {
+        res.status(400).json({
+            message: "display_order must be a non-negative integer.",
+        });
+        return false;
+    }
+
+    body.display_order = parsed;
     return true;
 };
 
-const validateCommonFields = (
-    body: Record<string, unknown>,
-    res: Response
+const validateFields = (
+    body: Body,
+    res: Response,
+    options: {
+        required: boolean;
+        parseMultipartStrings: boolean;
+    }
 ): boolean => {
+    const { required, parseMultipartStrings } = options;
 
-    if (
-        !validateStringField(
-            body.title,
-            "title",
-            MAX_LENGTH.title,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateStringField(
-            body.file_name,
-            "file_name",
-            MAX_LENGTH.file_name,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateStringField(
-            body.version,
-            "version",
-            MAX_LENGTH.version,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateBooleanField(
-            body.is_active,
+    return (
+        validateStringField(body, "title", res, required) &&
+        validateStringField(body, "file_name", res, false) &&
+        validateStringField(body, "version", res, false) &&
+        validateBooleanField(
+            body,
             "is_active",
-            res
+            res,
+            required,
+            parseMultipartStrings
+        ) &&
+        validateDisplayOrder(
+            body,
+            res,
+            required,
+            parseMultipartStrings
         )
-    ) {
-        return false;
-    }
-
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res
-        )
-    ) {
-        return false;
-    }
-
-    return true;
+    );
 };
 
 const validateCreate = (
@@ -225,82 +188,22 @@ const validateCreate = (
     res: Response,
     next: NextFunction
 ): void => {
-    const body = req.body ?? {};
+    const body = req.body as Body | undefined;
 
-    if (
-        typeof body !== "object" ||
-        Array.isArray(body) ||
-        body === null
-    ) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
         res.status(400).json({
-            message: "Request body must be a JSON object.",
+            message: "Request body must be a multipart form-data object.",
         });
-
         return;
     }
 
-    if (
-        rejectUnknownFields(
-            body,
-            createAllowedFields,
-            res
-        )
-    ) {
-        return;
-    }
+    if (rejectUnknownFields(body, ALLOWED_FIELDS, res)) return;
 
     if (
-        !validateStringField(
-            body.title,
-            "title",
-            MAX_LENGTH.title,
-            res,
-            true,
-            false
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateStringField(
-            body.file_name,
-            "file_name",
-            MAX_LENGTH.file_name,
-            res
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateStringField(
-            body.version,
-            "version",
-            MAX_LENGTH.version,
-            res
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateBooleanField(
-            body.is_active,
-            "is_active",
-            res,
-            true
-        )
-    ) {
-        return;
-    }
-
-    if (
-        !validateDisplayOrder(
-            body.display_order,
-            res,
-            true
-        )
+        !validateFields(body, res, {
+            required: true,
+            parseMultipartStrings: true,
+        })
     ) {
         return;
     }
@@ -313,48 +216,34 @@ const validateUpdate = (
     res: Response,
     next: NextFunction
 ): void => {
-    const body = req.body ?? {};
+    const body = req.body as Body | undefined;
 
-    if (
-        typeof body !== "object" ||
-        Array.isArray(body) ||
-        body === null
-    ) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
         res.status(400).json({
             message: "Request body must be a JSON object.",
         });
-
         return;
     }
 
-    const providedFields = Object.keys(body);
-
-    if (providedFields.length === 0) {
+    if (Object.keys(body).length === 0) {
         res.status(400).json({
             message: "At least one field is required.",
         });
-
         return;
     }
+
+    if (rejectUnknownFields(body, ALLOWED_FIELDS, res)) return;
 
     if (
-        rejectUnknownFields(
-            body,
-            updateAllowedFields,
-            res
-        )
+        !validateFields(body, res, {
+            required: false,
+            parseMultipartStrings: false,
+        })
     ) {
-        return;
-    }
-
-    if (!validateCommonFields(body, res)) {
         return;
     }
 
     next();
 };
 
-export {
-    validateCreate,
-    validateUpdate,
-};
+export { validateCreate, validateUpdate };

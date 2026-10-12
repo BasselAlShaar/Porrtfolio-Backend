@@ -10,7 +10,7 @@ import {
 
 const projectChallengesRouter = Router({ mergeParams: true });
 
-projectChallengesRouter.get("/", validateUUID, project_ChallengesController.getAllProjectChallenges);
+projectChallengesRouter.get("/", project_ChallengesController.getAllProjectChallenges);
 projectChallengesRouter.get("/:id", validateUUID, project_ChallengesController.getById);
 projectChallengesRouter.post("/", validateCreate, project_ChallengesController.createProjectChallenge);
 projectChallengesRouter.patch("/:id", validateUUID, validateUpdate, project_ChallengesController.updateProjectChallenge);

@@ -12,8 +12,7 @@ import upload from "../../../https/middlewares/upload.js";
 
 const projectImagesRouter = Router({ mergeParams: true });
 
-projectImagesRouter.get("/", validateUUID, project_ImagesController.getAllProjectImages);
-projectImagesRouter.get("/:id/file", validateUUID, project_ImagesController.getProjectImageFile);
+projectImagesRouter.get("/", project_ImagesController.getAllProjectImages);
 projectImagesRouter.get("/:id", validateUUID, project_ImagesController.getById);
 projectImagesRouter.post("/", upload.single("file"), validateCreate, validateImage, project_ImagesController.createProjectImage);
 projectImagesRouter.patch("/:id", validateUUID, validateUpdate, project_ImagesController.updateProjectImageData);

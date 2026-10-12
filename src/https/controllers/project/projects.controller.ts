@@ -59,20 +59,67 @@ const getBySlug = async (
 }
 
 //create
+// create
 const createProject = async (
     req: Request,
     res: Response
 ) => {
     try {
-        const project = await projectsService.createProject(req.body, req.file!);
+        const files = req.files as Express.Multer.File[] | undefined;
 
-        res.json({
-            message: "Created Successfully!"
+        if (!files?.length) {
+            res.status(400).json({
+                error: "At least one project image is required.",
+            });
+            return;
+        }
+
+        let imagesMetadata: unknown = req.body.images_metadata;
+
+        // Parse only if the value is still a string.
+        if (typeof imagesMetadata === "string") {
+            try {
+                imagesMetadata = JSON.parse(imagesMetadata);
+            } catch {
+                res.status(400).json({
+                    error: "images_metadata must contain valid JSON.",
+                });
+                return;
+            }
+        }
+
+        if (!Array.isArray(imagesMetadata)) {
+            res.status(400).json({
+                error: "images_metadata must be an array.",
+            });
+            return;
+        }
+
+        const project = await projectsService.createProject(
+            {
+                ...req.body,
+                images_metadata: imagesMetadata,
+            },
+            files
+        );
+
+        if (!project) {
+            res.status(500).json({
+                error: "Project creation failed.",
+            });
+            return;
+        }
+
+        res.status(201).json({
+            message: "Created successfully.",
+            project,
         });
     } catch (error) {
-        res.status(500).json({error: (error as Error).message})
+        res.status(500).json({
+            error: (error as Error).message,
+        });
     }
-}
+};
 
 //update
 const updateProject = async (

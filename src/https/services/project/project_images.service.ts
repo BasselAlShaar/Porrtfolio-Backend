@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 import optimizeImage from "../image_optimizer.js";
@@ -21,7 +22,7 @@ const getAllProjectImages = async (slug: string) => {
         caption: image.caption,
         image_type: image.image_type,
         display_order: image.display_order,
-        url: `/api/v1/project-images/${image.id}/file`,
+        url: `/api/v1/projects/images/${image.id}/file`,
     }));
 };
 
@@ -40,21 +41,21 @@ const getProjectImageById = async (id: string) => {
         caption: image.caption,
         image_type: image.image_type,
         display_order: image.display_order,
-        url: `/api/v1/project-images/${image.id}/file`,
+        url: `/api/v1/projects/images/${image.id}/file`,
     };
 };
 
+//get image file
 const getProjectImageFile = async (id: string) => {
-    const image =
-        await project_imagesRepository.getById(id);
+    const image = await project_imagesRepository.getById(id);
 
     if (!image) {
         return null;
     }
 
-    return getFilePath(
-        image.image_storage_key
-    );
+    const filePath = getFilePath(image.image_storage_key);
+
+    return filePath;
 };
 
 // Create project image

@@ -27,6 +27,19 @@ export interface ProjectData {
     display_order: number;
 }
 
+export interface CreateProjectImageMetadata {
+    file_index: number;
+    alt_text: string | null;
+    caption: string | null;
+    image_type: string;
+    display_order: number;
+}
+
+export type CreateProjectRequestData =
+    Omit<CreateProjectData, "images"> & {
+        images_metadata: CreateProjectImageMetadata[];
+    };
+
 export interface CreateProjectData extends ProjectData {
     technologies?: string[];
     skills?: string[];

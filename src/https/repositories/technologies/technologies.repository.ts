@@ -71,27 +71,27 @@ const find_all = async () => {
 const findById = async (id: string) => {
     const result = await pool.query(`
         SELECT
-            s.id,
-            s.name,
-            s.description,
-            s.icon,
-            s.display_order,
+            t.id,
+            t.name,
+            t.description,
+            t.icon,
+            t.display_order,
             COALESCE(
                 (
                     SELECT json_agg(
                         json_build_object(
-                            'id', sc.id,
-                            'name', sc.name
+                            'id', tc.id,
+                            'name', tc.name
                         )
-                        ORDER BY sc.display_order
+                        ORDER BY tc.display_order
                     )
-                    FROM technology_categories sc
-                    WHERE s.category_id = sc.id
+                    FROM technology_categories tc
+                    WHERE t.category_id = tc.id
                 ),
                 '[]'::json
             ) AS technology_category
-        FROM technologies s
-        WHERE s.id = $1;
+        FROM technologies t
+        WHERE t.id = $1;
     `, [id]);
 
     return result.rows[0] ?? null;

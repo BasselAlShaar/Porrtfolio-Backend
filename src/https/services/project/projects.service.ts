@@ -4,6 +4,7 @@ import type {
     ProjectStatus,
     CreateProjectData,
     UpdateProjectData,
+    CreateProjectRequestData,
 } from "../../../types/project/project.js";
 import optimizeImage from "../image_optimizer.js";
 import { randomUUID } from "node:crypto";
@@ -138,8 +139,8 @@ const getProjectBySlug = async (slug: string) => {
 
 //create
 const createProject = async (
-    data: CreateProjectData,
-    file: Express.Multer.File
+    data: CreateProjectRequestData,
+    files: Express.Multer.File[]
 ) => {
     validateProjectDates(
         data.start_date,
@@ -147,42 +148,102 @@ const createProject = async (
         data.status
     );
 
+    if (!files.length) {
+        throw new Error("At least one image is required.");
+    }
+
+    const metadata = data.images_metadata;
+
+    if (!Array.isArray(metadata) || metadata.length !== files.length) {
+        throw new Error(
+            "Each uploaded image must have exactly one metadata entry."
+        );
+    }
+
+    const usedIndexes = new Set<number>();
+
+    for (const item of metadata) {
+        if (
+            !Number.isInteger(item.file_index) ||
+            item.file_index < 0 ||
+            item.file_index >= files.length
+        ) {
+            throw new Error("Invalid image file_index.");
+        }
+
+        if (usedIndexes.has(item.file_index)) {
+            throw new Error("Duplicate image file_index.");
+        }
+
+        usedIndexes.add(item.file_index);
+
+        if (
+            typeof item.image_type !== "string" ||
+            !item.image_type.trim()
+        ) {
+            throw new Error("Every image must have an image_type.");
+        }
+
+        if (
+            !Number.isInteger(item.display_order) ||
+            item.display_order < 0
+        ) {
+            throw new Error("Invalid image display_order.");
+        }
+    }
+
     const projectId = randomUUID();
-
-    const optimized = await optimizeImage(file.buffer);
-
-    const filename = `${randomUUID()}.webp`;
-
-    const storageKey = await saveFile(
-        optimized.buffer,
-        `projects/${projectId}`,
-        filename
-    );
+    const savedKeys: string[] = [];
 
     try {
-        const result = await projectRepository.create({
-            ...data,
-            id: projectId,
-            images: [
-                {
+        const images = await Promise.all(
+            metadata.map(async (item) => {
+                const file = files[item.file_index];
+                const optimized = await optimizeImage(file!.buffer);
+                const filename = `${randomUUID()}.webp`;
+
+                const storageKey = await saveFile(
+                    optimized.buffer,
+                    `projects/${projectId}`,
+                    filename
+                );
+
+                savedKeys.push(storageKey);
+
+                return {
                     project_id: projectId,
                     image_storage_key: storageKey,
-                    alt_text: null,
-                    caption: null,
-                    image_type: "main",
-                    display_order: 0,
-                },
-            ],
-        });
+                    alt_text: item.alt_text,
+                    caption: item.caption,
+                    image_type: item.image_type,
+                    display_order: item.display_order,
+                };
+            })
+        );
+
+        const projectData: CreateProjectData = {
+            ...data,
+            id: projectId,
+            images,
+        };
+
+        // Do not pass request-only metadata into the repository.
+        delete (projectData as CreateProjectData & {
+            images_metadata?: unknown;
+        }).images_metadata;
+
+        const result = await projectRepository.create(projectData);
 
         if (!result) {
-            await deleteFile(storageKey);
-            return null;
+            throw new Error("Project creation failed.");
         }
 
         return result;
     } catch (error) {
-        await deleteFile(storageKey);
+        await Promise.allSettled(
+            savedKeys.map((key) => deleteFile(key))
+        );
+
         throw error;
     }
 };
@@ -221,20 +282,20 @@ const updateProject = async (
     return projectRepository.update(slug, data);
 }
 
-const deleteProject = async (id: string) => {
-    const project = await projectRepository.getBySlug(id);
+const deleteProject = async (slug: string) => {
+    const project = await projectRepository.getProjectId(slug);
 
     if (!project) {
         return null;
     }
 
-    const result = await projectRepository.delete(id);
+    const result = await projectRepository.delete(slug);
 
     if (!result) {
         return null;
     }
 
-    await deleteFolder(`projects/${id}`);
+    await deleteFolder(`projects/${project}`);
 
     return result;
 };

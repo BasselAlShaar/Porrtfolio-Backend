@@ -32,11 +32,11 @@ const getById = async (
 
 //create
 const createProjectLink = async (
-    req: Request,
+    req: Request<{slug: string}>,
     res: Response
 ) => {
     try {
-        const project = await project_linksService.createProjectLink(req.body);
+        const project = await project_linksService.createProjectLink(req.params.slug, req.body);
 
         res.json(project);
     } catch (error) {

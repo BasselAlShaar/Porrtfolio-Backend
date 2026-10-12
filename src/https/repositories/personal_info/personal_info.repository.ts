@@ -17,20 +17,19 @@ const getPublic = async () => {
             p.email,
             p.phone,
             p.availability_status,
-            p.availability_text,        
+            p.availability_text,
         COALESCE(
             (
                 SELECT json_agg(
                     json_build_object(
                         'id', s.id,
                         'platform', s.platform,
-                        'label', s.label,
+                        'label', s.label
                     )
                     ORDER BY s.display_order
                 )
                 FROM social_links s
-                WHERE s.personal_info_id = p.id
-                AND s.is_visible = true
+                WHERE s.is_visible = true
             ),
             '[]'::json
         ) AS links
@@ -69,7 +68,6 @@ const get = async () => {
                     ORDER BY s.display_order
                 )
                 FROM social_links s
-                WHERE s.personal_info_id = p.id
             ),
             '[]'::json
         ) AS links
@@ -156,7 +154,7 @@ const getImageStorageKey = async () => {
         `
     )
 
-    return result.rows[0].personal_info ?? null;
+    return result.rows[0].profile_image_url ?? null;
 }
 
 export default {

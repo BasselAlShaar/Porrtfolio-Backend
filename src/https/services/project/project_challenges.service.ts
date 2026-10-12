@@ -12,8 +12,8 @@ const getAllProjectChallenges = async (slug: string) => {
 }
 
 //get one
-const getProjectChallengeById = async (id: string) => {
-    return project_ChallengesRepository.getById(id);
+const getProjectChallengeById = async (id: string, slug: string) => {
+    return project_ChallengesRepository.getById(id, slug);
 }
 
 //create
@@ -29,9 +29,10 @@ const createProjectChallenge = async (
 
 const updateProjectChallenge = async (
     id: string,
+    slug: string,
     data: UpdateProjectChallengesData
 ) => {
-    const existingProjectChallenge = await project_ChallengesRepository.getById(id);
+    const existingProjectChallenge = await project_ChallengesRepository.getById(id, slug);
 
     if (!existingProjectChallenge) {
         return null;
@@ -40,8 +41,8 @@ const updateProjectChallenge = async (
     return project_ChallengesRepository.update(id, data);
 }
 
-const deleteProjectChallenge = async (id: string) => {
-    const existingProjectChallenge = await project_ChallengesRepository.getById(id);
+const deleteProjectChallenge = async (id: string, slug: string) => {
+    const existingProjectChallenge = await project_ChallengesRepository.getById(id, slug);
 
     if (!existingProjectChallenge) {
         return null;

@@ -22,6 +22,7 @@ import type {
     CreateExperienceData,
     UpdateExperienceData,
 } from "../../../types/experience/experience.js";
+import { randomUUID } from "node:crypto";
 
 // ================================================================
 //    DATE VALIDATION
@@ -117,7 +118,10 @@ const createExperience = async (
         data.end_date,
         data.is_current
     );
-    return experienceRepository.create(data);
+
+    const project_id = randomUUID();
+
+    return experienceRepository.create(project_id, data);
 };
 
 // ================================================================

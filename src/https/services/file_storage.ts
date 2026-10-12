@@ -1,11 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const MEDIA_ROOT = process.env.MEDIA_ROOT;
+const mediaRootEnv = process.env.MEDIA_ROOT;
 
-if (!MEDIA_ROOT) {
+if (!mediaRootEnv) {
     throw new Error("MEDIA_ROOT environment variable is not defined");
 }
+
+const MEDIA_ROOT = path.resolve(process.cwd(), mediaRootEnv);
 
 const deleteFolder = async (
     folder: string
@@ -47,7 +49,7 @@ const deleteFile = async (
 const getFilePath = (
     storageKey: string
 ): string => {
-    return path.join(MEDIA_ROOT, storageKey);
+    return path.resolve(MEDIA_ROOT, storageKey);
 };
 
 export {

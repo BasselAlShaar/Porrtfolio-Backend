@@ -6,7 +6,7 @@ import { validateCreate, validateUpdate } from "../../../https/middlewares/exper
 
 const experienceAchievementsRouter = Router();
 
-experienceAchievementsRouter.get("/", experience_achievementsController.getAllExperienceAchievements);
+experienceAchievementsRouter.get("/all/:id", validateUUID, experience_achievementsController.getAllExperienceAchievements);
 
 experienceAchievementsRouter.get("/:id", validateUUID, experience_achievementsController.getExperienceAchievementById);
 

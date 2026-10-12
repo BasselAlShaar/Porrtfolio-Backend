@@ -82,8 +82,10 @@ const getResumeFile = async (
 
         res.sendFile(filePath);
     } catch (error) {
-        res.status(404).json({
-            message: "Resume file not found",
+        console.error("getResumeFile error:", error);
+
+        res.status(500).json({
+            message: (error as Error).message,
         });
     }
 };

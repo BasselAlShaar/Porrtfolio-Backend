@@ -9,6 +9,7 @@ const MAX_LENGTH = {
     description: 5000,
     achievement_title: 200,
     achievement_description: 5000,
+    responsibility_title: 200,
     responsibility_description: 5000,
 } as const;
 
@@ -23,10 +24,10 @@ const createAllowedFields = [
     "end_date",
     "is_current",
     "display_order",
-    "skill_ids",
-    "technology_ids",
     "achievements",
     "responsibilities",
+    "skills",
+    "technologies",
 ] as const;
 
 const updateAllowedFields = [
@@ -410,6 +411,7 @@ const validateAchievements = (
     return true;
 };
 
+
 const validateResponsibilities = (
     value: unknown,
     res: Response
@@ -442,6 +444,7 @@ const validateResponsibilities = (
         const item = responsibility as Record<string, unknown>;
 
         const allowedKeys = [
+            "title",
             "description",
             "display_order",
         ];
@@ -458,29 +461,43 @@ const validateResponsibilities = (
             return false;
         }
 
+        // Title: required, non-null, non-empty string
         if (
-            typeof item.description !== "string" ||
-            !item.description.trim()
+            typeof item.title !== "string" ||
+            !item.title.trim()
         ) {
             res.status(400).json({
                 message:
-                    "Each responsibility description must be a non-empty string.",
+                    "Each responsibility title must be a non-empty string.",
             });
 
             return false;
         }
 
-        if (
-            item.description.length >
-            MAX_LENGTH.responsibility_description
-        ) {
+        if (item.title.length > MAX_LENGTH.responsibility_title) {
             res.status(400).json({
-                message: `Responsibility description must not exceed ${MAX_LENGTH.responsibility_description} characters.`,
+                message: `Responsibility title must not exceed ${MAX_LENGTH.responsibility_title} characters.`,
             });
 
             return false;
         }
 
+        // Description: optional and nullable
+        if (item.description !== undefined && item.description !== null) {
+            if (
+                typeof item.description !== "string" ||
+                item.description.length >
+                    MAX_LENGTH.responsibility_description
+            ) {
+                res.status(400).json({
+                    message: `Responsibility description must be a string or null, with a maximum of ${MAX_LENGTH.responsibility_description} characters.`,
+                });
+
+                return false;
+            }
+        }
+
+        // Display order: required, non-null, non-negative integer
         if (!isNonNegativeInteger(item.display_order)) {
             res.status(400).json({
                 message:
@@ -494,27 +511,17 @@ const validateResponsibilities = (
     return true;
 };
 
+
 const validateNestedFields = (
     body: Record<string, unknown>,
     res: Response
 ): boolean => {
-    if (
-        !validateUUIDArray(
-            body.skill_ids,
-            "skill_ids",
-            res
-        )
-    ) {
+
+    if (!validateUUIDArray(body.skills, "skills", res)) {
         return false;
     }
 
-    if (
-        !validateUUIDArray(
-            body.technology_ids,
-            "technology_ids",
-            res
-        )
-    ) {
+    if (!validateUUIDArray(body.technologies, "technologies", res)) {
         return false;
     }
 

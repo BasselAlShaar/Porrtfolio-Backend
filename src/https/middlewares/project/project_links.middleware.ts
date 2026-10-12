@@ -7,7 +7,6 @@ const MAX_LENGTH = {
 } as const;
 
 const createAllowedFields = [
-    "project_id",
     "link_type",
     "label",
     "url",
@@ -38,16 +37,6 @@ const isValidUrl = (value: unknown): value is string => {
     } catch {
         return false;
     }
-};
-
-const isValidUUID = (value: unknown): value is string => {
-    if (typeof value !== "string") {
-        return false;
-    }
-
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        value
-    );
 };
 
 const isNonNegativeInteger = (value: unknown): value is number => {
@@ -180,35 +169,6 @@ const validateUrlField = (
     return true;
 };
 
-const validateProjectId = (
-    value: unknown,
-    fieldName: string,
-    res: Response,
-    required = false
-): boolean => {
-    if (value === undefined) {
-        if (required) {
-            res.status(400).json({
-                message: `${fieldName} is required and must be a valid UUID.`,
-            });
-
-            return false;
-        }
-
-        return true;
-    }
-
-    if (value === null || !isValidUUID(value)) {
-        res.status(400).json({
-            message: `${fieldName} must be a valid UUID.`,
-        });
-
-        return false;
-    }
-
-    return true;
-};
-
 const validateDisplayOrder = (
     value: unknown,
     res: Response,
@@ -326,18 +286,7 @@ const validateCreate = (
     ) {
         return;
     }
-
-    if (
-        !validateProjectId(
-            body.project_id,
-            "project_id",
-            res,
-            true
-        )
-    ) {
-        return;
-    }
-
+    
     if (
         !validateStringField(
             body.label,

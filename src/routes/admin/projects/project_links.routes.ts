@@ -10,7 +10,7 @@ import {
 
 const projectLinksRouter = Router({ mergeParams: true });
 
-projectLinksRouter.get("/", validateUUID, project_linksController.getAllProjectLinks);
+projectLinksRouter.get("/", project_linksController.getAllProjectLinks);
 projectLinksRouter.get("/:id", validateUUID, project_linksController.getById);
 projectLinksRouter.post("/", validateCreate, project_linksController.createProjectLink);
 projectLinksRouter.patch("/:id", validateUUID, validateUpdate, project_linksController.updateProjectLink);
